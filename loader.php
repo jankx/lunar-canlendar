@@ -20,7 +20,7 @@ class Jankx_Lunar_Canlendar_Loader
 
     public function registerBlocks() {
         add_action('jankx/gutenberg/register-blocks', function(GutenbergRepository $repository){
-            $repository->registerBlock(LunarCanlendarBlock::class, implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'blocks', 'lunar-calendar']));
+            $repository->registerBlock(LunarCanlendarBlock::class, implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'build', 'lunar-calendar']));
         });
     }
 }
