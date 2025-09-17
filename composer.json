@@ -1,0 +1,15 @@
+{
+    "name": "jankx/lunar-canlendar",
+    "autoload": {
+        "psr-4": {
+            "Jankx\\LunarCanlendar\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Puleeno Nguyen",
+            "email": "puleeno@gmail.com"
+        }
+    ],
+    "require": {}
+}
