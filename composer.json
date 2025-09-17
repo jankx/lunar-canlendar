@@ -3,7 +3,10 @@
     "autoload": {
         "psr-4": {
             "Jankx\\LunarCanlendar\\": "src/"
-        }
+        },
+        "files": [
+            "./loader.php"
+        ]
     },
     "authors": [
         {
