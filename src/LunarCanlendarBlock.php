@@ -8,54 +8,260 @@ class LunarCanlendarBlock extends Block
 {
     /**
      * AJAX handler for calendar events
+     * Tích hợp với Events Manager plugin
      */
     public static function ajax_calendar_events() {
         $month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
         $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
-        // Fake/mock data for demo (should replace with real data source)
         $events = [];
-        $eventTemplates = [
-            [ 'title' => 'Thành lập công đoàn Việt Nam', 'year' => 1929, 'type' => 'historical' ],
-            [ 'title' => 'Ngày Việt Nam gia nhập ASEAN', 'year' => 1995, 'type' => 'historical' ],
-            [ 'title' => 'Ngày Quốc tế Lao động', 'year' => 1886, 'type' => 'international' ],
-            [ 'title' => 'Ngày Giải phóng miền Nam', 'year' => 1975, 'type' => 'national' ],
-            [ 'title' => 'Ngày Quốc khánh Việt Nam', 'year' => 1945, 'type' => 'national' ],
-            [ 'title' => 'Ngày Thầy thuốc Việt Nam', 'year' => 1955, 'type' => 'professional' ],
-            [ 'title' => 'Ngày Phụ nữ Việt Nam', 'year' => 1930, 'type' => 'social' ],
-            [ 'title' => 'Ngày Nhà giáo Việt Nam', 'year' => 1982, 'type' => 'professional' ],
-            [ 'title' => 'Ngày Thương binh Liệt sĩ', 'year' => 1947, 'type' => 'memorial' ],
-            [ 'title' => 'Ngày Độc lập Hoa Kỳ', 'year' => 1776, 'type' => 'international' ],
-        ];
-        $numEvents = rand(3, 8);
-        $usedDays = [];
-        for ($i = 0; $i < $numEvents; $i++) {
-            do {
-                $day = rand(1, 28);
-            } while (in_array($day, $usedDays));
-            $usedDays[] = $day;
-            $template = $eventTemplates[array_rand($eventTemplates)];
-            $yearsAgo = date('Y') - $template['year'];
-            $events[] = [
-                'day' => $day,
-                'title' => $template['title'],
-                'year' => $template['year'],
-                'yearsAgo' => $yearsAgo,
-                'type' => $template['type'],
-                'description' => $template['title'] . ' (' . $template['year'] . ') - ' . $yearsAgo . ' năm trước',
-                'isToday' => false,
-                'isHoliday' => in_array($template['type'], ['national', 'international'])
-            ];
+
+        // Tính toán ngày đầu và cuối tháng
+        $start_date = sprintf('%04d-%02d-01', $year, $month);
+        $last_day = date('t', strtotime($start_date));
+        $end_date = sprintf('%04d-%02d-%02d', $year, $month, $last_day);
+
+        // Debug: Log thông tin query
+        error_log("Lunar Calendar Debug - Month: $month, Year: $year");
+        error_log("Lunar Calendar Debug - Date Range: $start_date to $end_date");
+
+        // Lấy events trực tiếp từ database em_events
+        $events = self::get_events_from_database($month, $year);
+
+        // Debug: Log kết quả cuối cùng
+        error_log("Lunar Calendar Final Events Count: " . count($events));
+        if (!empty($events)) {
+            error_log("Lunar Calendar First Event: " . json_encode($events[0]));
         }
-        usort($events, function($a, $b) { return $a['day'] - $b['day']; });
+
         wp_send_json([
             'success' => true,
             'data' => [
                 'month' => sprintf('%02d', $month),
                 'year' => $year,
                 'events' => $events,
+                'total' => count($events),
             ]
         ]);
+    }
+
+    /**
+     * Phương thức backup: Lấy events trực tiếp từ database
+     */
+    public static function get_events_from_database($month, $year) {
+        global $wpdb;
+
+        // Lấy table prefix và tên bảng
+        $table_prefix = $wpdb->prefix;
+        $events_table = $table_prefix . 'em_events';
+        $posts_table = $table_prefix . 'posts';
+
+        // Tính toán ngày đầu và cuối tháng
+        $start_date = sprintf('%04d-%02d-01 00:00:00', $year, $month);
+        $last_day = date('t', strtotime($start_date));
+        $end_date = sprintf('%04d-%02d-%02d 23:59:59', $year, $month, $last_day);
+
+        // Kiểm tra bảng events có tồn tại không
+        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$events_table'");
+        if (!$table_exists) {
+            return [];
+        }
+
+        // Truy vấn events từ database - chỉ lấy events trong tháng đang xem
+        $sql = $wpdb->prepare("
+            SELECT
+                e.event_id,
+                e.post_id,
+                e.event_name,
+                e.event_start_date,
+                e.event_end_date,
+                e.location_id,
+                e.event_active_status,
+                p.post_excerpt,
+                p.post_content
+            FROM $events_table e
+            INNER JOIN $posts_table p ON e.post_id = p.ID
+            WHERE p.post_status = 'publish'
+            AND e.event_active_status = 1
+            AND e.event_start_date >= %s
+            AND e.event_start_date <= %s
+            ORDER BY e.event_start_date ASC
+        ", $start_date, $end_date);
+
+        $results = $wpdb->get_results($sql);
+
+        // Debug: Log query và kết quả
+        error_log("Lunar Calendar SQL: " . $sql);
+        error_log("Lunar Calendar Results Count: " . count($results));
+        if (!empty($results)) {
+            error_log("Lunar Calendar First Result: " . json_encode($results[0]));
+        }
+
+        if (!$results) {
+            return [];
+        }
+
+        // Map category slug sang event type
+        $category_type_map = apply_filters('lunar_calendar_category_type_map', [
+            'lich-su' => 'historical',
+            'quoc-gia' => 'national',
+            'quoc-te' => 'international',
+            'nghe-nghiep' => 'professional',
+            'xa-hoi' => 'social',
+            'tuong-niem' => 'memorial',
+            'le-hoi' => 'celebration',
+            'van-hoa' => 'cultural',
+            'ton-giao' => 'religious',
+        ]);
+
+        $events = [];
+
+        foreach ($results as $row) {
+            // Lấy ngày trong tháng từ event_start_date
+            $event_start_date = new \DateTime($row->event_start_date);
+            $day = intval($event_start_date->format('j'));
+
+            // Đơn giản hóa cho lịch âm dương: chỉ hiển thị "Sự kiện"
+            $time_display = 'Sự kiện';
+
+            // Lấy category đầu tiên để xác định type
+            $event_type = 'default'; // mặc định là không có category (màu xám)
+            $categories = get_the_terms($row->post_id, 'event-categories');
+            if (!empty($categories) && !is_wp_error($categories)) {
+                $first_category = reset($categories);
+                $category_slug = $first_category->slug;
+
+                if (isset($category_type_map[$category_slug])) {
+                    $event_type = $category_type_map[$category_slug];
+                }
+            }
+
+            // Map type sang number cho frontend
+            $type_map = apply_filters('lunar_calendar_type_number_map', [
+                'default' => 0,      // mặc định - màu xám
+                'national' => 1,     // màu đỏ
+                'historical' => 2,   // màu xanh dương
+                'international' => 3, // màu xanh lá
+                'professional' => 4,  // màu tím
+                'social' => 5,        // màu cam
+                'memorial' => 6,      // màu nâu
+                'celebration' => 7,   // màu hồng
+                'cultural' => 8,      // màu cyan
+                'religious' => 9,     // màu vàng
+            ]);
+            $type_number = isset($type_map[$event_type]) ? $type_map[$event_type] : 0;
+
+            // Lấy năm từ custom field
+            $event_year = null;
+            $years_ago = null;
+            $stored_year = get_post_meta($row->post_id, '_event_year', true);
+            if ($stored_year && is_numeric($stored_year)) {
+                $event_year = intval($stored_year);
+                $years_ago = date('Y') - $event_year;
+            }
+
+            // Tạo description từ event_name (ưu tiên) hoặc post content
+            $description = $row->event_name ?: 'Sự kiện';
+            if (!empty($row->post_excerpt)) {
+                $description = $row->post_excerpt;
+            } elseif (!empty($row->post_content)) {
+                $description = wp_trim_words($row->post_content, 20, '...');
+            }
+
+            if ($event_year && $years_ago > 0) {
+                $description .= ' (' . $event_year . ') - ' . $years_ago . ' năm trước';
+            }
+
+            // Lấy thông tin địa điểm
+            $location_info = '';
+            if ($row->location_id) {
+                $location_name = $wpdb->get_var($wpdb->prepare(
+                    "SELECT location_name FROM {$table_prefix}em_locations WHERE location_id = %d",
+                    $row->location_id
+                ));
+                if ($location_name) {
+                    $location_info = $location_name;
+                }
+            }
+
+            // Kiểm tra recurring từ database
+            $is_recurring = false;
+            $recurrence_pattern = '';
+
+            // Kiểm tra từ post meta
+            $recurrence_freq = get_post_meta($row->post_id, '_event_recurrence_freq', true);
+            $recurrence_interval = get_post_meta($row->post_id, '_event_recurrence_interval', true);
+
+            if ($recurrence_freq) {
+                $is_recurring = true;
+
+                $freq_map = [
+                    'daily' => 'hàng ngày',
+                    'weekly' => 'hàng tuần',
+                    'monthly' => 'hàng tháng',
+                    'yearly' => 'hàng năm',
+                ];
+
+                if (isset($freq_map[$recurrence_freq])) {
+                    $interval = $recurrence_interval ?: 1;
+                    if ($interval == 1) {
+                        $recurrence_pattern = $freq_map[$recurrence_freq];
+                    } else {
+                        $recurrence_pattern = "mỗi {$interval} " . $freq_map[$recurrence_freq];
+                    }
+                }
+            }
+
+            $events[] = [
+                'day' => $day,
+                'title' => $row->event_name ?: 'Sự kiện',
+                'year' => $event_year,
+                'yearsAgo' => $years_ago,
+                'type' => $type_number,
+                'typeName' => ucfirst($event_type),
+                'description' => $description,
+                'isToday' => $event_start_date->format('Y-m-d') === date('Y-m-d'),
+                'isHoliday' => in_array($event_type, ['national', 'international']),
+                'event_id' => $row->event_id,
+                'post_id' => $row->post_id,
+                'start_date' => $event_start_date->format('Y-m-d'),
+                'end_date' => $row->event_end_date,
+                'time_display' => $time_display,
+                'location' => $location_info,
+                'event_url' => get_permalink($row->post_id),
+                'is_recurring' => $is_recurring,
+                'recurrence_pattern' => $recurrence_pattern,
+            ];
+        }
+
+        return $events;
+    }
+
+    /**
+     * Debug method: Kiểm tra cấu trúc database (chỉ dùng khi debug)
+     */
+    public static function debug_database_structure() {
+        global $wpdb;
+
+        $table_prefix = $wpdb->prefix;
+        $events_table = $table_prefix . 'em_events';
+        $locations_table = $table_prefix . 'em_locations';
+
+        $debug_info = [
+            'table_prefix' => $table_prefix,
+            'events_table' => $events_table,
+            'locations_table' => $locations_table,
+            'events_table_exists' => $wpdb->get_var("SHOW TABLES LIKE '$events_table'") !== null,
+            'locations_table_exists' => $wpdb->get_var("SHOW TABLES LIKE '$locations_table'") !== null,
+        ];
+
+        // Kiểm tra có events không
+        if ($debug_info['events_table_exists']) {
+            $debug_info['events_count'] = $wpdb->get_var("SELECT COUNT(*) FROM $events_table");
+            $debug_info['sample_event'] = $wpdb->get_row("SELECT * FROM $events_table LIMIT 1");
+        }
+
+        return $debug_info;
     }
 
     /**
@@ -64,6 +270,24 @@ class LunarCanlendarBlock extends Block
     public static function register_ajax_handler() {
         add_action('wp_ajax_jankx_lunar_calendar_events', [__CLASS__, 'ajax_calendar_events']);
         add_action('wp_ajax_nopriv_jankx_lunar_calendar_events', [__CLASS__, 'ajax_calendar_events']);
+
+        // Debug endpoint (chỉ cho admin)
+        if (current_user_can('manage_options')) {
+            add_action('wp_ajax_jankx_lunar_calendar_debug', [__CLASS__, 'ajax_debug_database']);
+        }
+    }
+
+    /**
+     * Debug AJAX handler
+     */
+    public static function ajax_debug_database() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+            return;
+        }
+
+        $debug_info = self::debug_database_structure();
+        wp_send_json_success($debug_info);
     }
 
     protected $blockId = 'jankx/lunar-calendar';
@@ -71,7 +295,6 @@ class LunarCanlendarBlock extends Block
     public function init()
     {
         add_action('wp_enqueue_scripts', function () {
-            self::register_ajax_handler();
             // Third-party deps
             wp_enqueue_script(
                 'moment',
@@ -123,19 +346,6 @@ class LunarCanlendarBlock extends Block
         ?>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: 'Arial', sans-serif;
-                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                min-height: 100vh;
-                padding: 20px;
-            }
-
             .lunar-calendar-container {
                 max-width: 1200px;
                 margin: 0 auto;
@@ -315,6 +525,51 @@ class LunarCanlendarBlock extends Block
                 font-size: 0.8rem;
                 color: #999;
                 font-style: italic;
+                margin-top: 8px;
+            }
+
+            .event-time, .event-location, .event-history, .event-recurrence {
+                font-size: 0.85rem;
+                color: #666;
+                margin: 4px 0;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .event-time i, .event-location i, .event-history i, .event-recurrence i {
+                width: 14px;
+                color: #888;
+            }
+
+            .event-recurrence {
+                color: #007bff;
+                font-weight: 500;
+            }
+
+            .event-recurrence i {
+                color: #007bff;
+            }
+
+            .event-link {
+                margin-top: 8px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            .event-link a {
+                color: #007bff;
+                text-decoration: none;
+                font-size: 0.85rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                transition: color 0.2s;
+            }
+
+            .event-link a:hover {
+                color: #0056b3;
+                text-decoration: underline;
             }
 
             .no-events {
@@ -324,7 +579,32 @@ class LunarCanlendarBlock extends Block
                 padding: 20px;
             }
 
+            .additional-events-info {
+                text-align: center;
+                color: #666;
+                font-size: 0.9rem;
+                padding: 15px 20px;
+                background: rgba(0, 123, 255, 0.1);
+                border-radius: 8px;
+                margin-top: 10px;
+                border-left: 3px solid #007bff;
+            }
+
+            .additional-events-info i {
+                color: #007bff;
+                margin-right: 5px;
+            }
+
             /* Event type colors for holiday info */
+            .holiday-event-item.event-type-0 {
+                border-left-color: #95a5a6;
+                background: rgba(149, 165, 166, 0.05);
+            }
+
+            .holiday-event-item.event-type-0 .holiday-event-title {
+                color: #95a5a6;
+            }
+
             .holiday-event-item.event-type-1 {
                 border-left-color: #e74c3c;
                 background: rgba(231, 76, 60, 0.05);
@@ -344,30 +624,66 @@ class LunarCanlendarBlock extends Block
             }
 
             .holiday-event-item.event-type-3 {
-                border-left-color: #f39c12;
-                background: rgba(243, 156, 18, 0.05);
-            }
-
-            .holiday-event-item.event-type-3 .holiday-event-title {
-                color: #f39c12;
-            }
-
-            .holiday-event-item.event-type-4 {
                 border-left-color: #27ae60;
                 background: rgba(39, 174, 96, 0.05);
             }
 
-            .holiday-event-item.event-type-4 .holiday-event-title {
+            .holiday-event-item.event-type-3 .holiday-event-title {
                 color: #27ae60;
             }
 
-            .holiday-event-item.event-type-5 {
+            .holiday-event-item.event-type-4 {
                 border-left-color: #9b59b6;
                 background: rgba(155, 89, 182, 0.05);
             }
 
-            .holiday-event-item.event-type-5 .holiday-event-title {
+            .holiday-event-item.event-type-4 .holiday-event-title {
                 color: #9b59b6;
+            }
+
+            .holiday-event-item.event-type-5 {
+                border-left-color: #f39c12;
+                background: rgba(243, 156, 18, 0.05);
+            }
+
+            .holiday-event-item.event-type-5 .holiday-event-title {
+                color: #f39c12;
+            }
+
+            .holiday-event-item.event-type-6 {
+                border-left-color: #8b4513;
+                background: rgba(139, 69, 19, 0.05);
+            }
+
+            .holiday-event-item.event-type-6 .holiday-event-title {
+                color: #8b4513;
+            }
+
+            .holiday-event-item.event-type-7 {
+                border-left-color: #e91e63;
+                background: rgba(233, 30, 99, 0.05);
+            }
+
+            .holiday-event-item.event-type-7 .holiday-event-title {
+                color: #e91e63;
+            }
+
+            .holiday-event-item.event-type-8 {
+                border-left-color: #00bcd4;
+                background: rgba(0, 188, 212, 0.05);
+            }
+
+            .holiday-event-item.event-type-8 .holiday-event-title {
+                color: #00bcd4;
+            }
+
+            .holiday-event-item.event-type-9 {
+                border-left-color: #ffeb3b;
+                background: rgba(255, 235, 59, 0.05);
+            }
+
+            .holiday-event-item.event-type-9 .holiday-event-title {
+                color: #f57f17;
             }
 
             /* Navigation Bar */
@@ -591,6 +907,12 @@ class LunarCanlendarBlock extends Block
             }
 
             /* Desktop event colors by type */
+            .lunar-day-event .desktop-event-item.type-0 {
+                color: #95a5a6;
+                background: rgba(149, 165, 166, 0.1);
+                border-left: 2px solid #95a5a6;
+            }
+
             .lunar-day-event .desktop-event-item.type-1 {
                 color: #e74c3c;
                 background: rgba(231, 76, 60, 0.1);
@@ -604,25 +926,53 @@ class LunarCanlendarBlock extends Block
             }
 
             .lunar-day-event .desktop-event-item.type-3 {
-                color: #f39c12;
-                background: rgba(243, 156, 18, 0.1);
-                border-left: 2px solid #f39c12;
-            }
-
-            .lunar-day-event .desktop-event-item.type-4 {
                 color: #27ae60;
                 background: rgba(39, 174, 96, 0.1);
                 border-left: 2px solid #27ae60;
             }
 
-            .lunar-day-event .desktop-event-item.type-5 {
+            .lunar-day-event .desktop-event-item.type-4 {
                 color: #9b59b6;
                 background: rgba(155, 89, 182, 0.1);
                 border-left: 2px solid #9b59b6;
             }
 
+            .lunar-day-event .desktop-event-item.type-5 {
+                color: #f39c12;
+                background: rgba(243, 156, 18, 0.1);
+                border-left: 2px solid #f39c12;
+            }
+
+            .lunar-day-event .desktop-event-item.type-6 {
+                color: #8b4513;
+                background: rgba(139, 69, 19, 0.1);
+                border-left: 2px solid #8b4513;
+            }
+
+            .lunar-day-event .desktop-event-item.type-7 {
+                color: #e91e63;
+                background: rgba(233, 30, 99, 0.1);
+                border-left: 2px solid #e91e63;
+            }
+
+            .lunar-day-event .desktop-event-item.type-8 {
+                color: #00bcd4;
+                background: rgba(0, 188, 212, 0.1);
+                border-left: 2px solid #00bcd4;
+            }
+
+            .lunar-day-event .desktop-event-item.type-9 {
+                color: #f57f17;
+                background: rgba(255, 235, 59, 0.1);
+                border-left: 2px solid #f57f17;
+            }
+
             .lunar-day-event .desktop-event-item:hover {
                 transform: scale(1.02);
+            }
+
+            .lunar-day-event .desktop-event-item.type-0:hover {
+                background: rgba(149, 165, 166, 0.2);
             }
 
             .lunar-day-event .desktop-event-item.type-1:hover {
@@ -634,15 +984,31 @@ class LunarCanlendarBlock extends Block
             }
 
             .lunar-day-event .desktop-event-item.type-3:hover {
-                background: rgba(243, 156, 18, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-4:hover {
                 background: rgba(39, 174, 96, 0.2);
             }
 
-            .lunar-day-event .desktop-event-item.type-5:hover {
+            .lunar-day-event .desktop-event-item.type-4:hover {
                 background: rgba(155, 89, 182, 0.2);
+            }
+
+            .lunar-day-event .desktop-event-item.type-5:hover {
+                background: rgba(243, 156, 18, 0.2);
+            }
+
+            .lunar-day-event .desktop-event-item.type-6:hover {
+                background: rgba(139, 69, 19, 0.2);
+            }
+
+            .lunar-day-event .desktop-event-item.type-7:hover {
+                background: rgba(233, 30, 99, 0.2);
+            }
+
+            .lunar-day-event .desktop-event-item.type-8:hover {
+                background: rgba(0, 188, 212, 0.2);
+            }
+
+            .lunar-day-event .desktop-event-item.type-9:hover {
+                background: rgba(255, 235, 59, 0.2);
             }
 
             .lunar-day-event .desktop-event-item:last-child {
@@ -683,24 +1049,54 @@ class LunarCanlendarBlock extends Block
             }
 
             /* Event dot colors */
+            .lunar-day-event.mobile-event .event-dot.type-0 {
+                background: #95a5a6;
+                /* Gray - Default/No category */
+            }
+
             .lunar-day-event.mobile-event .event-dot.type-1 {
                 background: #e74c3c;
-                /* Red - Holidays */
+                /* Red - National events */
             }
 
             .lunar-day-event.mobile-event .event-dot.type-2 {
                 background: #3498db;
-                /* Blue - National events */
+                /* Blue - Historical events */
             }
 
             .lunar-day-event.mobile-event .event-dot.type-3 {
-                background: #f39c12;
-                /* Orange - Cultural events */
+                background: #27ae60;
+                /* Green - International events */
             }
 
             .lunar-day-event.mobile-event .event-dot.type-4 {
-                background: #27ae60;
-                /* Green - Religious events */
+                background: #9b59b6;
+                /* Purple - Professional events */
+            }
+
+            .lunar-day-event.mobile-event .event-dot.type-5 {
+                background: #f39c12;
+                /* Orange - Social events */
+            }
+
+            .lunar-day-event.mobile-event .event-dot.type-6 {
+                background: #8b4513;
+                /* Brown - Memorial events */
+            }
+
+            .lunar-day-event.mobile-event .event-dot.type-7 {
+                background: #e91e63;
+                /* Pink - Celebration events */
+            }
+
+            .lunar-day-event.mobile-event .event-dot.type-8 {
+                background: #00bcd4;
+                /* Cyan - Cultural events */
+            }
+
+            .lunar-day-event.mobile-event .event-dot.type-9 {
+                background: #f57f17;
+                /* Yellow - Religious events */
             }
 
             .lunar-day-event.mobile-event .event-dot.type-5 {
@@ -1022,55 +1418,37 @@ class LunarCanlendarBlock extends Block
             // Calendar configuration options
             const calendarConfig = {
                 showTodayButton: true,  // Set to false to hide today button
-                todayButtonText: 'Hôm nay'
+                todayButtonText: 'Hôm nay',
+                maxHolidayInfoItems: 1,  // Maximum number of events to show in holiday info section
+                showAdditionalEventsMessage: false  // Set to true to show "Còn X sự kiện khác" message
             };
 
-            // Mock data generator for calendar events
-            function generateMockEvents(month, year) {
-                const events = [];
-                const eventTemplates = [
-                    { title: "Thành lập công đoàn Việt Nam", year: 1929, type: "historical" },
-                    { title: "Ngày Việt Nam gia nhập ASEAN", year: 1995, type: "historical" },
-                    { title: "Ngày Quốc tế Lao động", year: 1886, type: "international" },
-                    { title: "Ngày Giải phóng miền Nam", year: 1975, type: "national" },
-                    { title: "Ngày Quốc khánh Việt Nam", year: 1945, type: "national" },
-                    { title: "Ngày Thầy thuốc Việt Nam", year: 1955, type: "professional" },
-                    { title: "Ngày Phụ nữ Việt Nam", year: 1930, type: "social" },
-                    { title: "Ngày Nhà giáo Việt Nam", year: 1982, type: "professional" },
-                    { title: "Ngày Thương binh Liệt sĩ", year: 1947, type: "memorial" },
-                    { title: "Ngày Độc lập Hoa Kỳ", year: 1776, type: "international" }
-                ];
-
-                // Generate 3-8 random events for the month
-                const numEvents = Math.floor(Math.random() * 6) + 3;
-                const usedDays = new Set();
-
-                for (let i = 0; i < numEvents; i++) {
-                    let day;
-                    do {
-                        day = Math.floor(Math.random() * 28) + 1; // 1-28 to avoid month length issues
-                    } while (usedDays.has(day));
-
-                    usedDays.add(day);
-
-                    const template = eventTemplates[Math.floor(Math.random() * eventTemplates.length)];
-                    const currentYear = new Date().getFullYear();
-                    const yearsAgo = currentYear - template.year;
-
-                    events.push({
-                        day: day,
-                        title: template.title,
-                        year: template.year,
-                        yearsAgo: yearsAgo,
-                        type: template.type,
-                        description: `${template.title} (${template.year}) - ${yearsAgo} năm trước`,
-                        isToday: false,
-                        isHoliday: template.type === 'national' || template.type === 'international'
-                    });
+            // Function to update calendar configuration
+            // Usage:
+            // updateCalendarConfig({ maxHolidayInfoItems: 3 })
+            // updateCalendarConfig({ showAdditionalEventsMessage: true })
+            // updateCalendarConfig({ maxHolidayInfoItems: 2, showAdditionalEventsMessage: true })
+            function updateCalendarConfig(newConfig) {
+                Object.assign(calendarConfig, newConfig);
+                // Refresh holiday info display if calendar is already initialized
+                if (typeof window.lunarCalendarInstance !== 'undefined') {
+                    window.lunarCalendarInstance.updateHolidayInfo();
                 }
+            }
 
-                // Sort by day
-                return events.sort((a, b) => a.day - b.day);
+            // Function to get current calendar configuration
+            function getCalendarConfig() {
+                return { ...calendarConfig };
+            }
+
+            // Expose functions globally for external access
+            window.updateCalendarConfig = updateCalendarConfig;
+            window.getCalendarConfig = getCalendarConfig;
+
+            // Fallback data generator (chỉ dùng khi API lỗi)
+            function generateFallbackEvents(month, year) {
+                // Trả về mảng rỗng khi không có sự kiện
+                return [];
             }
 
             // AJAX fetch function for calendar events
@@ -1089,7 +1467,9 @@ class LunarCanlendarBlock extends Block
                     apiUrl.searchParams.append('locale', 'vi');
                     apiUrl.searchParams.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
-                    console.log('Fetching calendar events from:', apiUrl.toString());
+                    console.log('=== API URL Debug ===');
+                    console.log('window.lunarCalendarApiUrl:', window.lunarCalendarApiUrl);
+                    console.log('Final API URL:', apiUrl.toString());
 
                     // Make real AJAX request
                     const response = await fetch(apiUrl.toString(), {
@@ -1122,12 +1502,21 @@ class LunarCanlendarBlock extends Block
                         hideLoadingState();
                     }
 
+                    // Debug: Log full response structure
+                    console.log('=== API Response Debug ===');
+                    console.log('data.success:', data.success);
+                    console.log('data.data:', data.data);
+                    console.log('data.data.events:', data.data ? data.data.events : 'data.data is null');
+                    console.log('Full response:', JSON.stringify(data, null, 2));
+
                     // Return events from API response
                     if (data.success && data.data && data.data.events) {
+                        console.log('API Success - Events found:', data.data.events.length);
                         return data.data.events;
                     } else {
                         console.warn('Invalid API response format, using fallback');
-                        return generateMockEvents(month, year);
+                        console.log('API Response:', data);
+                        return [];
                     }
 
                 } catch (error) {
@@ -1138,9 +1527,9 @@ class LunarCanlendarBlock extends Block
                         hideLoadingState();
                     }
 
-                    // Fallback to mock data on error
-                    console.log('Falling back to mock data due to API error');
-                    return generateMockEvents(month, year);
+                    // Fallback to fallback data on error
+                    console.log('Falling back to fallback data due to API error');
+                    return generateFallbackEvents(month, year);
                 }
             }
 
@@ -1218,11 +1607,18 @@ class LunarCanlendarBlock extends Block
             // Initialize calendar events data
             async function initializeCalendarEvents(currentMonth, currentYear) {
                 try {
+                    console.log('Initializing calendar events for:', currentMonth, currentYear);
                     const [prevEvents, currentEvents, nextEvents] = await Promise.all([
                         fetchCalendarEvents(currentMonth - 1, currentYear, true),
                         fetchCalendarEvents(currentMonth, currentYear, true),
                         fetchCalendarEvents(currentMonth + 1, currentYear, true)
                     ]);
+
+                    console.log('Calendar events loaded:', {
+                        prev: prevEvents.length,
+                        current: currentEvents.length,
+                        next: nextEvents.length
+                    });
 
                     // Calculate month identifiers
                     const prevMonthId = formatMonthId(currentMonth - 1, currentYear);
@@ -1658,22 +2054,66 @@ class LunarCanlendarBlock extends Block
 
                     let holidayHTML = '';
                     if (dayEvents.length > 0) {
-                        // Show all events for the selected day
-                        dayEvents.forEach((event, index) => {
+                        // Limit the number of events shown based on configuration
+                        const maxItems = calendarConfig.maxHolidayInfoItems || 1;
+                        const eventsToShow = dayEvents.slice(0, maxItems);
+
+                        // Show limited events for the selected day
+                        eventsToShow.forEach((event, index) => {
                             const eventTypeClass = `event-type-${event.type || 1}`;
                             const eventTypeName = event.typeName || 'event';
+
+                            // Tạo thông tin chi tiết
+                            let eventDetails = '';
+
+                            // Thông tin thời gian
+                            if (event.time_display) {
+                                eventDetails += `<div class="event-time"><i class="fas fa-clock"></i> ${event.time_display}</div>`;
+                            }
+
+                            // Thông tin địa điểm
+                            if (event.location) {
+                                eventDetails += `<div class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</div>`;
+                            }
+
+                            // Thông tin năm lịch sử
+                            if (event.year && event.yearsAgo) {
+                                eventDetails += `<div class="event-history"><i class="fas fa-history"></i> ${event.year} (${event.yearsAgo} năm trước)</div>`;
+                            }
+
+                            // Thông tin recurring
+                            if (event.is_recurring && event.recurrence_pattern) {
+                                eventDetails += `<div class="event-recurrence"><i class="fas fa-repeat"></i> ${event.recurrence_pattern}</div>`;
+                            }
+
+                            // Link đến trang sự kiện
+                            let eventLink = '';
+                            if (event.event_url) {
+                                eventLink = `<div class="event-link"><a href="${event.event_url}" target="_blank"><i class="fas fa-external-link-alt"></i> Xem chi tiết</a></div>`;
+                            }
 
                             holidayHTML += `
                             <div class="holiday-event-item ${eventTypeClass}">
                                 <div class="holiday-event-title">${event.title}</div>
                                 <div class="holiday-event-description">${event.description}</div>
+                                ${eventDetails}
                                 <div class="holiday-event-type">${eventTypeName}</div>
+                                ${eventLink}
                             </div>
                         `;
                         });
+
+                        // Show additional events count if there are more events than displayed
+                        if (dayEvents.length > maxItems && calendarConfig.showAdditionalEventsMessage) {
+                            const remainingCount = dayEvents.length - maxItems;
+                            holidayHTML += `<div class="additional-events-info">
+                                <i class="fas fa-info-circle"></i>
+                                Còn ${remainingCount} sự kiện khác trong ngày này
+                            </div>`;
+                        }
                     } else {
                         // Default message when no events for selected date
-                        holidayHTML = '<div class="no-events">Không có sự kiện đặc biệt</div>';
+                        holidayHTML = '<div class="no-events">Không có sự kiện nào</div>';
                     }
 
                     document.getElementById('holiday-info').innerHTML = holidayHTML;
@@ -1952,6 +2392,9 @@ class LunarCanlendarBlock extends Block
             // Initialize the calendar when the page loads
             document.addEventListener('DOMContentLoaded', () => {
                 const calendar = new LunarCalendar();
+
+                // Store calendar instance globally for configuration updates
+                window.lunarCalendarInstance = calendar;
 
                 // Handle window resize to update mobile/desktop event display
                 let resizeTimeout;

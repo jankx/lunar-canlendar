@@ -22,6 +22,9 @@ class Jankx_Lunar_Canlendar_Loader
         add_action('jankx/gutenberg/register-blocks', function(GutenbergRepository $repository){
             $repository->registerBlock(LunarCanlendarBlock::class, implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'build', 'lunar-calendar']));
         });
+
+        // Đăng ký AJAX handlers ngay từ đầu
+        LunarCanlendarBlock::register_ajax_handler();
     }
 }
 
