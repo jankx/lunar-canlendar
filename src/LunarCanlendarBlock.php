@@ -21,18 +21,8 @@ class LunarCanlendarBlock extends Block
         $last_day = date('t', strtotime($start_date));
         $end_date = sprintf('%04d-%02d-%02d', $year, $month, $last_day);
 
-        // Debug: Log thông tin query
-        error_log("Lunar Calendar Debug - Month: $month, Year: $year");
-        error_log("Lunar Calendar Debug - Date Range: $start_date to $end_date");
-
         // Lấy events trực tiếp từ database em_events
         $events = self::get_events_from_database($month, $year);
-
-        // Debug: Log kết quả cuối cùng
-        error_log("Lunar Calendar Final Events Count: " . count($events));
-        if (!empty($events)) {
-            error_log("Lunar Calendar First Event: " . json_encode($events[0]));
-        }
 
         wp_send_json([
             'success' => true,
@@ -90,12 +80,6 @@ class LunarCanlendarBlock extends Block
 
         $results = $wpdb->get_results($sql);
 
-        // Debug: Log query và kết quả
-        error_log("Lunar Calendar SQL: " . $sql);
-        error_log("Lunar Calendar Results Count: " . count($results));
-        if (!empty($results)) {
-            error_log("Lunar Calendar First Result: " . json_encode($results[0]));
-        }
 
         if (!$results) {
             return [];
@@ -1467,10 +1451,6 @@ class LunarCanlendarBlock extends Block
                     apiUrl.searchParams.append('locale', 'vi');
                     apiUrl.searchParams.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
 
-                    console.log('=== API URL Debug ===');
-                    console.log('window.lunarCalendarApiUrl:', window.lunarCalendarApiUrl);
-                    console.log('Final API URL:', apiUrl.toString());
-
                     // Make real AJAX request
                     const response = await fetch(apiUrl.toString(), {
                         method: 'GET',
@@ -1489,46 +1469,26 @@ class LunarCanlendarBlock extends Block
                     // Parse JSON response
                     const data = await response.json();
 
-                    console.log(`API Response for ${month}/${year}:`, {
-                        url: apiUrl.toString(),
-                        status: response.status,
-                        statusText: response.statusText,
-                        headers: Object.fromEntries(response.headers.entries()),
-                        data: data
-                    });
-
                     // Hide loading state only if it was shown
                     if (showLoading) {
                         hideLoadingState();
                     }
 
-                    // Debug: Log full response structure
-                    console.log('=== API Response Debug ===');
-                    console.log('data.success:', data.success);
-                    console.log('data.data:', data.data);
-                    console.log('data.data.events:', data.data ? data.data.events : 'data.data is null');
-                    console.log('Full response:', JSON.stringify(data, null, 2));
 
                     // Return events from API response
                     if (data.success && data.data && data.data.events) {
-                        console.log('API Success - Events found:', data.data.events.length);
                         return data.data.events;
                     } else {
-                        console.warn('Invalid API response format, using fallback');
-                        console.log('API Response:', data);
                         return [];
                     }
 
                 } catch (error) {
-                    console.error('Error fetching calendar events:', error);
-
                     // Hide loading state only if it was shown
                     if (showLoading) {
                         hideLoadingState();
                     }
 
                     // Fallback to fallback data on error
-                    console.log('Falling back to fallback data due to API error');
                     return generateFallbackEvents(month, year);
                 }
             }
@@ -1607,18 +1567,11 @@ class LunarCanlendarBlock extends Block
             // Initialize calendar events data
             async function initializeCalendarEvents(currentMonth, currentYear) {
                 try {
-                    console.log('Initializing calendar events for:', currentMonth, currentYear);
                     const [prevEvents, currentEvents, nextEvents] = await Promise.all([
                         fetchCalendarEvents(currentMonth - 1, currentYear, true),
                         fetchCalendarEvents(currentMonth, currentYear, true),
                         fetchCalendarEvents(currentMonth + 1, currentYear, true)
                     ]);
-
-                    console.log('Calendar events loaded:', {
-                        prev: prevEvents.length,
-                        current: currentEvents.length,
-                        next: nextEvents.length
-                    });
 
                     // Calculate month identifiers
                     const prevMonthId = formatMonthId(currentMonth - 1, currentYear);
@@ -1636,11 +1589,8 @@ class LunarCanlendarBlock extends Block
                     cacheEventsByDate(currentEvents, currentMonth, currentYear);
                     cacheEventsByDate(nextEvents, currentMonth + 1, currentYear);
 
-                    console.log('Calendar events initialized:', calendarEvents);
-                    console.log('Cached holidays:', selectedHolidays);
                     return calendarEvents;
                 } catch (error) {
-                    console.error('Error initializing calendar events:', error);
                     return {
                         prev: { month: '', events: [] },
                         current: { month: '', events: [] },
@@ -1662,11 +1612,7 @@ class LunarCanlendarBlock extends Block
 
             // Debug function to display current data structure
             function debugCalendarData() {
-                console.log('=== Calendar Events Data Structure ===');
-                console.log('Previous Month:', calendarEvents.prev.month, 'Events:', calendarEvents.prev.events.length);
-                console.log('Current Month:', calendarEvents.current.month, 'Events:', calendarEvents.current.events.length);
-                console.log('Next Month:', calendarEvents.next.month, 'Events:', calendarEvents.next.events.length);
-                console.log('Full Structure:', calendarEvents);
+                // Debug function removed - no console.log
             }
 
             // Check if selected month is within current range
@@ -1712,7 +1658,6 @@ class LunarCanlendarBlock extends Block
             // Test API endpoint
             async function testAPI() {
                 try {
-                    console.log('Testing API endpoint...');
                     const testUrl = (window.lunarCalendarApiUrl || '') + '?month=8&year=2025';
 
                     const response = await fetch(testUrl, {
@@ -1725,14 +1670,11 @@ class LunarCanlendarBlock extends Block
 
                     if (response.ok) {
                         const data = await response.json();
-                        console.log('API Test Success:', data);
                         return true;
                     } else {
-                        console.error('API Test Failed:', response.status, response.statusText);
                         return false;
                     }
                 } catch (error) {
-                    console.error('API Test Error:', error);
                     return false;
                 }
             }
@@ -1783,9 +1725,6 @@ class LunarCanlendarBlock extends Block
                     try {
                         // Test API endpoint first
                         const apiWorking = await testAPI();
-                        if (!apiWorking) {
-                            console.warn('API endpoint not working, will use fallback mock data');
-                        }
 
                         // Initialize calendar events data
                         await this.initializeEvents();
@@ -2008,7 +1947,6 @@ class LunarCanlendarBlock extends Block
                             throw new Error('Lunar date library not loaded');
                         }
                     } catch (error) {
-                        console.warn('Lunar date calculation failed, using fallback:', error);
 
                         // Fallback calculation với thuật toán đơn giản
                         const year = gregorianDate.year();
@@ -2140,12 +2078,6 @@ class LunarCanlendarBlock extends Block
                         // Cache new events
                         cacheEventsByDate(nextNextEvents, nextMonth.month() + 1, nextMonth.year());
 
-                        console.log('Navigated to next month:', {
-                            prev: calendarEvents.prev.month,
-                            current: calendarEvents.current.month,
-                            next: calendarEvents.next.month
-                        });
-
                         // Update calendar display
                         this.currentDate = nextMonth;
                         this.generateCalendar();
@@ -2178,12 +2110,6 @@ class LunarCanlendarBlock extends Block
                         // Cache new events
                         cacheEventsByDate(prevPrevEvents, prevMonth.month() - 1, prevMonth.year());
 
-                        console.log('Navigated to previous month:', {
-                            prev: calendarEvents.prev.month,
-                            current: calendarEvents.current.month,
-                            next: calendarEvents.next.month
-                        });
-
                         // Update calendar display
                         this.currentDate = prevMonth;
                         this.generateCalendar();
@@ -2201,8 +2127,6 @@ class LunarCanlendarBlock extends Block
                     disableNavigationButtons();
 
                     try {
-                        console.log(`Fetching all 3 months for ${month}/${year}...`);
-
                         // Fetch all 3 months in parallel (show loading for this case)
                         const [prevEvents, currentEvents, nextEvents] = await Promise.all([
                             fetchCalendarEvents(month - 1, year, true),
@@ -2227,12 +2151,6 @@ class LunarCanlendarBlock extends Block
                         cacheEventsByDate(currentEvents, month, year);
                         cacheEventsByDate(nextEvents, month + 1, year);
 
-                        console.log('All 3 months fetched and updated:', {
-                            prev: calendarEvents.prev.month,
-                            current: calendarEvents.current.month,
-                            next: calendarEvents.next.month
-                        });
-
                         // Update current date and display
                         this.currentDate = moment([year, month - 1]);
                         this.updateSelectors();
@@ -2241,7 +2159,7 @@ class LunarCanlendarBlock extends Block
                         this.updateHolidayInfo();
 
                     } catch (error) {
-                        console.error('Error fetching all months:', error);
+                        // Error handling - no logging
                     } finally {
                         // Re-enable navigation buttons after fetch
                         enableNavigationButtons();
