@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "jankx/event-details",
+  "version": "1.0.0",
+  "title": "Thông tin Sự kiện",
+  "category": "widgets",
+  "icon": "calendar-alt",
+  "description": "Hiển thị thông tin chi tiết sự kiện từ Events Manager",
+  "textdomain": "lunar-calendar",
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "supports": {
+    "html": false,
+    "align": false,
+    "multiple": false
+  },
+  "attributes": {
+    "showDate": {
+      "type": "boolean",
+      "default": true
+    },
+    "showTime": {
+      "type": "boolean",
+      "default": true
+    },
+    "showLocation": {
+      "type": "boolean",
+      "default": true
+    },
+    "showOrganizer": {
+      "type": "boolean",
+      "default": true
+    },
+    "showCategories": {
+      "type": "boolean",
+      "default": true
+    },
+    "showBookingInfo": {
+      "type": "boolean",
+      "default": true
+    },
+    "showBookingButton": {
+      "type": "boolean",
+      "default": true
+    },
+    "bookingButtonText": {
+      "type": "string",
+      "default": "Đăng ký tham gia"
+    }
+  }
+}
+
+
