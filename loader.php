@@ -3,12 +3,16 @@
 use Jankx\Gutenberg\GutenbergRepository;
 use Jankx\LunarCanlendar\LunarCanlendarBlock;
 use Jankx\LunarCanlendar\EventDetailBlock;
+use Jankx\LunarCanlendar\EventsIntegration;
 
 class Jankx_Lunar_Canlendar_Loader
 {
+    protected $eventsIntegration;
+
     public function __construct()
     {
         $this->load();
+        $this->initIntegrations();
     }
 
     public function load()
@@ -35,6 +39,17 @@ class Jankx_Lunar_Canlendar_Loader
         }
 
         return false;
+    }
+
+    /**
+     * Initialize integrations with Events Manager
+     */
+    protected function initIntegrations()
+    {
+        if ($this->isEventsManagerActive()) {
+            $this->eventsIntegration = new EventsIntegration();
+            $this->eventsIntegration->init();
+        }
     }
 
     public function registerBlocks() {
