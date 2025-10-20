@@ -1285,24 +1285,32 @@ class LunarCanlendarBlock extends Block
 
             <!-- Current Date Display with prev/next day buttons -->
             <div class="lunar-current-date-section">
-                <button class="lunar-date-nav-btn" id="prev-day-btn" title="Ngày trước">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div class="lunar-date-column">
-                    <div class="lunar-date-label">Dương lịch</div>
+                <div>
+                    <button class="lunar-date-nav-btn" id="prev-day-btn" title="Ngày trước">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="lunar-date-nav-btn" id="next-day-btn" title="Ngày tiếp theo">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="lunar-date-column lunar-date-column-gregorian">
+                    <div class="lunar-date-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        Dương lịch
+                    </div>
                     <div class="lunar-date-number" id="current-gregorian-day">08</div>
                     <div class="lunar-date-month-year" id="current-gregorian-month-year">Tháng 08 năm 2025</div>
                     <div class="lunar-date-day" id="current-gregorian-day-name">Thứ 6</div>
                 </div>
-                <div class="lunar-date-column">
-                    <div class="lunar-date-label">Âm lịch</div>
+                <div class="lunar-date-column lunar-date-column-lunar">
+                    <div class="lunar-date-label">
+                        <i class="fas fa-moon"></i>
+                        Âm lịch
+                    </div>
                     <div class="lunar-date-number" id="current-lunar-day">15</div>
                     <div class="lunar-date-month-year" id="current-lunar-month-year">Tháng 06 năm Ất Tỵ</div>
                     <div class="lunar-info" id="current-lunar-details">Ngày Kỷ Dậu - Tháng Quý Mùi</div>
                 </div>
-                <button class="lunar-date-nav-btn" id="next-day-btn" title="Ngày tiếp theo">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
             </div>
 
             <!-- Holiday Information -->
@@ -1313,42 +1321,40 @@ class LunarCanlendarBlock extends Block
 
             <!-- Navigation Bar -->
             <div class="lunar-calendar-nav">
-                <button class="lunar-nav-arrow" id="prev-month">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                <div class="lunar-nav-center">
+                <div>
+                    <button class="lunar-nav-arrow" id="prev-month">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
                     <div class="lunar-current-month-year" id="current-month-year">Tháng 8 - 2025</div>
-                    <div class="lunar-month-year-selectors">
-                        <select id="month-selector">
-                            <option value="1">Tháng 1</option>
-                            <option value="2">Tháng 2</option>
-                            <option value="3">Tháng 3</option>
-                            <option value="4">Tháng 4</option>
-                            <option value="5">Tháng 5</option>
-                            <option value="6">Tháng 6</option>
-                            <option value="7">Tháng 7</option>
-                            <option value="8" selected>Tháng 8</option>
-                            <option value="9">Tháng 9</option>
-                            <option value="10">Tháng 10</option>
-                            <option value="11">Tháng 11</option>
-                            <option value="12">Tháng 12</option>
-                        </select>
-                        <select id="year-selector">
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025" selected>2025</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                        </select>
-                        <button class="lunar-view-btn" id="view-btn">Xem</button>
-                        <button class="lunar-today-btn" id="today-btn">Hôm nay</button>
-                    </div>
+                    <button class="lunar-nav-arrow" id="next-month">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
-
-                <button class="lunar-nav-arrow" id="next-month">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                <div class="lunar-month-year-selectors">
+                    <select id="month-selector">
+                        <option value="1">Tháng 1</option>
+                        <option value="2">Tháng 2</option>
+                        <option value="3">Tháng 3</option>
+                        <option value="4">Tháng 4</option>
+                        <option value="5">Tháng 5</option>
+                        <option value="6">Tháng 6</option>
+                        <option value="7">Tháng 7</option>
+                        <option value="8" selected>Tháng 8</option>
+                        <option value="9">Tháng 9</option>
+                        <option value="10">Tháng 10</option>
+                        <option value="11">Tháng 11</option>
+                        <option value="12">Tháng 12</option>
+                    </select>
+                    <select id="year-selector">
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                    <button class="lunar-view-btn" id="view-btn">Xem</button>
+                    <button class="lunar-today-btn" id="today-btn">Hôm nay</button>
+                </div>
             </div>
 
             <!-- Loading Indicator -->

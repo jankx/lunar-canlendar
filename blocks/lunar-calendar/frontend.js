@@ -94,10 +94,17 @@
         }
 
         function bindEvents(){
-            const prev=document.getElementById('prev-month');
-            const next=document.getElementById('next-month');
-            prev && prev.addEventListener('click',()=>{state.currentDate=state.currentDate.clone().subtract(1,'month');updateHeader();generateCalendar();});
-            next && next.addEventListener('click',()=>{state.currentDate=state.currentDate.clone().add(1,'month');updateHeader();generateCalendar();});
+            const prevMonth=document.getElementById('prev-month');
+            const nextMonth=document.getElementById('next-month');
+            const prevDay=document.getElementById('prev-day-btn');
+            const nextDay=document.getElementById('next-day-btn');
+
+            prevMonth && prevMonth.addEventListener('click',()=>{state.currentDate=state.currentDate.clone().subtract(1,'month');updateHeader();generateCalendar();});
+            nextMonth && nextMonth.addEventListener('click',()=>{state.currentDate=state.currentDate.clone().add(1,'month');updateHeader();generateCalendar();});
+
+            prevDay && prevDay.addEventListener('click',()=>{state.selectedDate=state.selectedDate.clone().subtract(1,'day');state.currentDate=state.selectedDate.clone();updateHeader();generateCalendar();});
+            nextDay && nextDay.addEventListener('click',()=>{state.selectedDate=state.selectedDate.clone().add(1,'day');state.currentDate=state.selectedDate.clone();updateHeader();generateCalendar();});
+
             el.viewBtn && el.viewBtn.addEventListener('click',()=>{
                 const m=parseInt(el.monthSelector.value,10); const y=parseInt(el.yearSelector.value,10);
                 state.currentDate=moment([y,m-1]); updateHeader(); generateCalendar();
