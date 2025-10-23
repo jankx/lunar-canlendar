@@ -10,7 +10,8 @@ class LunarCanlendarBlock extends Block
      * AJAX handler for calendar events
      * Tích hợp với Events Manager plugin
      */
-    public static function ajax_calendar_events() {
+    public static function ajax_calendar_events()
+    {
         $month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
         $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
@@ -38,7 +39,8 @@ class LunarCanlendarBlock extends Block
     /**
      * Phương thức backup: Lấy events trực tiếp từ database
      */
-    public static function get_events_from_database($month, $year) {
+    public static function get_events_from_database($month, $year)
+    {
         global $wpdb;
 
         // Tính toán ngày đầu và cuối tháng
@@ -48,7 +50,7 @@ class LunarCanlendarBlock extends Block
 
         // Truy vấn events từ wp-event-solution plugin (post type: etn)
         $sql = $wpdb->prepare("
-            SELECT 
+            SELECT
                 p.ID as post_id,
                 p.post_title as event_name,
                 p.post_excerpt,
@@ -91,7 +93,7 @@ class LunarCanlendarBlock extends Block
             if (!$event_start_date_str) {
                 continue; // Bỏ qua nếu không có ngày bắt đầu
             }
-            
+
             $event_start_date = new \DateTime($event_start_date_str);
             $day = intval($event_start_date->format('j'));
 
@@ -134,15 +136,21 @@ class LunarCanlendarBlock extends Block
                 $years_ago = date('Y') - $event_year;
             }
 
-            // Tạo description từ event_name (ưu tiên) hoặc post content
-            $description = $row->event_name ?: 'Sự kiện';
+            // Tạo description từ post_excerpt hoặc post_content
+            $description = '';
             if (!empty($row->post_excerpt)) {
                 $description = $row->post_excerpt;
             } elseif (!empty($row->post_content)) {
                 $description = wp_trim_words($row->post_content, 20, '...');
             }
 
-            if ($event_year && $years_ago > 0) {
+            // Nếu vẫn không có description, để trống (không dùng title)
+            if (empty($description)) {
+                $description = '';
+            }
+
+            // Thêm thông tin lịch sử vào description nếu có
+            if (!empty($description) && $event_year && $years_ago > 0) {
                 $description .= ' (' . $event_year . ') - ' . $years_ago . ' năm trước';
             }
 
@@ -209,7 +217,8 @@ class LunarCanlendarBlock extends Block
     /**
      * Debug method: Kiểm tra cấu trúc database (chỉ dùng khi debug)
      */
-    public static function debug_database_structure() {
+    public static function debug_database_structure()
+    {
         global $wpdb;
 
         $table_prefix = $wpdb->prefix;
@@ -236,7 +245,8 @@ class LunarCanlendarBlock extends Block
     /**
      * Register AJAX handler
      */
-    public static function register_ajax_handler() {
+    public static function register_ajax_handler()
+    {
         add_action('wp_ajax_jankx_lunar_calendar_events', [__CLASS__, 'ajax_calendar_events']);
         add_action('wp_ajax_nopriv_jankx_lunar_calendar_events', [__CLASS__, 'ajax_calendar_events']);
 
@@ -249,7 +259,8 @@ class LunarCanlendarBlock extends Block
     /**
      * Debug AJAX handler
      */
-    public static function ajax_debug_database() {
+    public static function ajax_debug_database()
+    {
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Unauthorized');
             return;
@@ -299,13 +310,137 @@ class LunarCanlendarBlock extends Block
     }
 
 
-    public function render()
+    /**
+     * Sanitize icon HTML allowing SVG and common icon tags
+     */
+    private function sanitize_icon_html($html)
+    {
+        if (empty($html)) {
+            return '';
+        }
+
+        // Define allowed HTML tags and attributes for icons
+        $allowed_tags = [
+            'svg' => [
+                'xmlns' => true,
+                'viewbox' => true,
+                'width' => true,
+                'height' => true,
+                'fill' => true,
+                'class' => true,
+                'aria-hidden' => true,
+                'role' => true,
+                'focusable' => true,
+            ],
+            'path' => [
+                'd' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'stroke-linecap' => true,
+                'stroke-linejoin' => true,
+                'class' => true,
+            ],
+            'circle' => [
+                'cx' => true,
+                'cy' => true,
+                'r' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'class' => true,
+            ],
+            'rect' => [
+                'x' => true,
+                'y' => true,
+                'width' => true,
+                'height' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'rx' => true,
+                'ry' => true,
+                'class' => true,
+            ],
+            'polygon' => [
+                'points' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'class' => true,
+            ],
+            'polyline' => [
+                'points' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'class' => true,
+            ],
+            'line' => [
+                'x1' => true,
+                'y1' => true,
+                'x2' => true,
+                'y2' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'class' => true,
+            ],
+            'ellipse' => [
+                'cx' => true,
+                'cy' => true,
+                'rx' => true,
+                'ry' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'class' => true,
+            ],
+            'g' => [
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'transform' => true,
+                'class' => true,
+            ],
+            'defs' => [],
+            'clippath' => [
+                'id' => true,
+            ],
+            'mask' => [
+                'id' => true,
+            ],
+            'i' => [
+                'class' => true,
+                'aria-hidden' => true,
+            ],
+            'span' => [
+                'class' => true,
+                'aria-hidden' => true,
+            ],
+            'img' => [
+                'src' => true,
+                'alt' => true,
+                'width' => true,
+                'height' => true,
+                'class' => true,
+            ],
+        ];
+
+        return wp_kses($html, $allowed_tags);
+    }
+
+    public function render($attributes = [], $content = '', $block = null)
     {
         // Tạo endpoint động cho JS
         $ajax_url = admin_url('admin-ajax.php');
         $api_url = add_query_arg([
             'action' => 'jankx_lunar_calendar_events',
         ], $ajax_url);
+
+        // Get block attributes
+        $show_today_button = isset($attributes['showTodayButton']) ? (bool) $attributes['showTodayButton'] : false;
+        $gregorian_icon_html = $this->sanitize_icon_html(isset($attributes['gregorianIconHtml']) ? $attributes['gregorianIconHtml'] : '');
+        $lunar_icon_html = $this->sanitize_icon_html(isset($attributes['lunarIconHtml']) ? $attributes['lunarIconHtml'] : '');
 
         // Only output the script if not an AJAX request
         if (!(defined('DOING_AJAX') && DOING_AJAX)) {
@@ -314,999 +449,63 @@ class LunarCanlendarBlock extends Block
         ob_start();
         ?>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <style>
-            .lunar-calendar-container {
-                max-width: 1200px;
-                margin: 0 auto;
-                background: white;
-                border-radius: 20px;
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                overflow: hidden;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                opacity: 1;
-                transition: opacity 0.3s ease;
-            }
-
-            .lunar-calendar-container.loading {
-                opacity: 0.3;
-            }
-
-            /* Header Section */
-            .lunar-calendar-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 30px;
-                text-align: center;
-            }
-
-            .lunar-calendar-header h1 {
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-                font-weight: 300;
-            }
-
-            .lunar-calendar-header p {
-                font-size: 1.1rem;
-                opacity: 0.9;
-            }
-
-            /* Current Date Display */
-            .lunar-current-date-section {
-                display: flex;
-                background: white;
-                border-bottom: 1px solid #eee;
-            }
-
-            .lunar-date-nav-btn {
-                background: #007bff;
-                color: #fff;
-                border: none;
-                border-radius: 50%;
-                width: 38px;
-                height: 38px;
-                font-size: 1.2rem;
-                margin: auto 10px;
-                cursor: pointer;
-                transition: background 0.2s;
-                align-self: center;
-            }
-
-            .lunar-date-nav-btn:hover {
-                background: #0056b3;
-            }
-
-            @media (max-width: 768px) {
-                .lunar-current-date-section {
-                    flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                .lunar-date-nav-btn {
-                    width: 32px;
-                    height: 32px;
-                    font-size: 1rem;
-                    margin: 5px;
-                }
-            }
-
-            .lunar-date-column {
-                flex: 1;
-                padding: 30px;
-                text-align: center;
-                position: relative;
-            }
-
-            .lunar-date-column:not(:last-child)::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                top: 20%;
-                bottom: 20%;
-                width: 1px;
-                background: #eee;
-            }
-
-            .lunar-date-label {
-                font-size: 0.9rem;
-                color: #666;
-                margin-bottom: 10px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .lunar-date-number {
-                font-size: 4rem;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 10px;
-                line-height: 1;
-            }
-
-            .lunar-date-month-year {
-                font-size: 1.2rem;
-                color: #666;
-                margin-bottom: 5px;
-            }
-
-            .lunar-date-day {
-                font-size: 1rem;
-                color: #888;
-            }
-
-            .lunar-info {
-                font-size: 0.9rem;
-                color: #666;
-                margin-top: 10px;
-                line-height: 1.4;
-            }
-
-            .lunar-holiday-info {
-                background: #f8f9fa;
-                padding: 20px 30px;
-                text-align: center;
-                border-bottom: 1px solid #eee;
-            }
-
-            .lunar-holiday-title {
-                font-size: 1.1rem;
-                color: #333;
-                margin-bottom: 10px;
-                font-weight: 500;
-            }
-
-            .lunar-holiday-content {
-                color: #666;
-                font-size: 1rem;
-            }
-
-            /* Holiday info multiple events styling */
-            .holiday-event-item {
-                margin-bottom: 15px;
-                padding: 12px;
-                border-radius: 8px;
-                border-left: 4px solid;
-                background: rgba(255, 255, 255, 0.8);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-
-            .holiday-event-item:last-child {
-                margin-bottom: 0;
-            }
-
-            .holiday-event-title {
-                font-weight: 600;
-                font-size: 1rem;
-                margin-bottom: 5px;
-            }
-
-            .holiday-event-description {
-                font-size: 0.9rem;
-                color: #666;
-                margin-bottom: 5px;
-                line-height: 1.4;
-            }
-
-            .holiday-event-type {
-                font-size: 0.8rem;
-                color: #999;
-                font-style: italic;
-                margin-top: 8px;
-            }
-
-            .event-time, .event-location, .event-history, .event-recurrence {
-                font-size: 0.85rem;
-                color: #666;
-                margin: 4px 0;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .event-time i, .event-location i, .event-history i, .event-recurrence i {
-                width: 14px;
-                color: #888;
-            }
-
-            .event-recurrence {
-                color: #007bff;
-                font-weight: 500;
-            }
-
-            .event-recurrence i {
-                color: #007bff;
-            }
-
-            .event-link {
-                margin-top: 8px;
-                padding-top: 8px;
-                border-top: 1px solid rgba(0, 0, 0, 0.1);
-            }
-
-            .event-link a {
-                color: #007bff;
-                text-decoration: none;
-                font-size: 0.85rem;
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                transition: color 0.2s;
-            }
-
-            .event-link a:hover {
-                color: #0056b3;
-                text-decoration: underline;
-            }
-
-            .no-events {
-                text-align: center;
-                color: #999;
-                font-style: italic;
-                padding: 20px;
-            }
-
-            .additional-events-info {
-                text-align: center;
-                color: #666;
-                font-size: 0.9rem;
-                padding: 15px 20px;
-                background: rgba(0, 123, 255, 0.1);
-                border-radius: 8px;
-                margin-top: 10px;
-                border-left: 3px solid #007bff;
-            }
-
-            .additional-events-info i {
-                color: #007bff;
-                margin-right: 5px;
-            }
-
-            /* Event type colors for holiday info */
-            .holiday-event-item.event-type-0 {
-                border-left-color: #95a5a6;
-                background: rgba(149, 165, 166, 0.05);
-            }
-
-            .holiday-event-item.event-type-0 .holiday-event-title {
-                color: #95a5a6;
-            }
-
-            .holiday-event-item.event-type-1 {
-                border-left-color: #e74c3c;
-                background: rgba(231, 76, 60, 0.05);
-            }
-
-            .holiday-event-item.event-type-1 .holiday-event-title {
-                color: #e74c3c;
-            }
-
-            .holiday-event-item.event-type-2 {
-                border-left-color: #3498db;
-                background: rgba(52, 152, 219, 0.05);
-            }
-
-            .holiday-event-item.event-type-2 .holiday-event-title {
-                color: #3498db;
-            }
-
-            .holiday-event-item.event-type-3 {
-                border-left-color: #27ae60;
-                background: rgba(39, 174, 96, 0.05);
-            }
-
-            .holiday-event-item.event-type-3 .holiday-event-title {
-                color: #27ae60;
-            }
-
-            .holiday-event-item.event-type-4 {
-                border-left-color: #9b59b6;
-                background: rgba(155, 89, 182, 0.05);
-            }
-
-            .holiday-event-item.event-type-4 .holiday-event-title {
-                color: #9b59b6;
-            }
-
-            .holiday-event-item.event-type-5 {
-                border-left-color: #f39c12;
-                background: rgba(243, 156, 18, 0.05);
-            }
-
-            .holiday-event-item.event-type-5 .holiday-event-title {
-                color: #f39c12;
-            }
-
-            .holiday-event-item.event-type-6 {
-                border-left-color: #8b4513;
-                background: rgba(139, 69, 19, 0.05);
-            }
-
-            .holiday-event-item.event-type-6 .holiday-event-title {
-                color: #8b4513;
-            }
-
-            .holiday-event-item.event-type-7 {
-                border-left-color: #e91e63;
-                background: rgba(233, 30, 99, 0.05);
-            }
-
-            .holiday-event-item.event-type-7 .holiday-event-title {
-                color: #e91e63;
-            }
-
-            .holiday-event-item.event-type-8 {
-                border-left-color: #00bcd4;
-                background: rgba(0, 188, 212, 0.05);
-            }
-
-            .holiday-event-item.event-type-8 .holiday-event-title {
-                color: #00bcd4;
-            }
-
-            .holiday-event-item.event-type-9 {
-                border-left-color: #ffeb3b;
-                background: rgba(255, 235, 59, 0.05);
-            }
-
-            .holiday-event-item.event-type-9 .holiday-event-title {
-                color: #f57f17;
-            }
-
-            /* Navigation Bar */
-            .lunar-calendar-nav {
-                background: #dc3545;
-                color: white;
-                padding: 15px 30px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .lunar-nav-arrow {
-                background: none;
-                border: none;
-                color: white;
-                font-size: 1.5rem;
-                cursor: pointer;
-                padding: 10px;
-                border-radius: 50%;
-                transition: background 0.3s;
-            }
-
-            .lunar-nav-arrow:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-
-            .lunar-nav-center {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .lunar-current-month-year {
-                font-size: 1.3rem;
-                font-weight: 500;
-            }
-
-            .lunar-month-year-selectors {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-            }
-
-            select {
-                padding: 8px 12px;
-                border: none;
-                border-radius: 5px;
-                background: white;
-                color: #333;
-                font-size: 0.9rem;
-            }
-
-            .lunar-view-btn {
-                background: #28a745;
-                color: white;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 0.9rem;
-                transition: background 0.3s;
-            }
-
-            .lunar-view-btn:hover {
-                background: #218838;
-            }
-
-            .lunar-today-btn {
-                background: #007bff;
-                color: white;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 0.9rem;
-                transition: background 0.3s;
-            }
-
-            .lunar-today-btn:hover {
-                background: #0056b3;
-            }
-
-            .lunar-today-btn:disabled {
-                background: #6c757d;
-                cursor: not-allowed;
-            }
-
-            /* Calendar Grid */
-            .lunar-calendar-grid {
-                padding: 20px;
-            }
-
-            .lunar-weekdays {
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 1px;
-                margin-bottom: 10px;
-            }
-
-            .lunar-weekday {
-                background: #f8f9fa;
-                padding: 15px 10px;
-                text-align: center;
-                font-weight: 500;
-                color: #333;
-                border-radius: 5px;
-            }
-
-            .lunar-calendar-days {
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 1px;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            }
-
-            .lunar-calendar-day {
-                background: white;
-                border: 1px solid #eee;
-                min-height: 120px;
-                padding: 10px;
-                position: relative;
-                cursor: pointer;
-                transition: all 0.3s;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            }
-
-            .lunar-calendar-day:hover {
-                background: #f8f9fa;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-
-            .lunar-calendar-day.other-month {
-                background: #f8f9fa;
-                color: #999;
-                cursor: default;
-                pointer-events: none;
-            }
-
-            .lunar-calendar-day.today {
-                background: #fff3cd;
-                border-color: #ffc107;
-            }
-
-            .lunar-calendar-day.selected {
-                background: #d4edda;
-                border-color: #28a745;
-            }
-
-            .lunar-lunar-day-number {
-                font-size: 1.2rem;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 5px;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            }
-
-            .lunar-lunar-day {
-                font-size: 0.8rem;
-                color: #666;
-                margin-bottom: 8px;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            }
-
-            .lunar-day-event {
-                font-size: 0.7rem;
-                color: #888;
-                line-height: 1.2;
-                position: absolute;
-                bottom: 5px;
-                left: 5px;
-                right: 5px;
-                transition: all 0.3s ease;
-                max-height: 4.8em;
-                /* Increased to accommodate 3 events */
-                overflow: hidden;
-                text-overflow: ellipsis;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            }
-
-            .lunar-day-event.has-event {
-                color: #e74c3c;
-                font-weight: 500;
-                background: rgba(231, 76, 60, 0.1);
-                border-radius: 3px;
-            }
-
-            .lunar-day-event.has-event:hover {
-                background: rgba(231, 76, 60, 0.2);
-                transform: translateY(-1px);
-            }
-
-            /* Desktop multiple events styling */
-            .lunar-day-event .desktop-event-item {
-                display: block;
-                font-size: 0.7rem;
-                font-weight: 500;
-                padding: 1px 3px;
-                border-radius: 2px;
-                margin-bottom: 1px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                transition: all 0.2s ease;
-            }
-
-            /* Desktop event colors by type */
-            .lunar-day-event .desktop-event-item.type-0 {
-                color: #95a5a6;
-                background: rgba(149, 165, 166, 0.1);
-                border-left: 2px solid #95a5a6;
-            }
-
-            .lunar-day-event .desktop-event-item.type-1 {
-                color: #e74c3c;
-                background: rgba(231, 76, 60, 0.1);
-                border-left: 2px solid #e74c3c;
-            }
-
-            .lunar-day-event .desktop-event-item.type-2 {
-                color: #3498db;
-                background: rgba(52, 152, 219, 0.1);
-                border-left: 2px solid #3498db;
-            }
-
-            .lunar-day-event .desktop-event-item.type-3 {
-                color: #27ae60;
-                background: rgba(39, 174, 96, 0.1);
-                border-left: 2px solid #27ae60;
-            }
-
-            .lunar-day-event .desktop-event-item.type-4 {
-                color: #9b59b6;
-                background: rgba(155, 89, 182, 0.1);
-                border-left: 2px solid #9b59b6;
-            }
-
-            .lunar-day-event .desktop-event-item.type-5 {
-                color: #f39c12;
-                background: rgba(243, 156, 18, 0.1);
-                border-left: 2px solid #f39c12;
-            }
-
-            .lunar-day-event .desktop-event-item.type-6 {
-                color: #8b4513;
-                background: rgba(139, 69, 19, 0.1);
-                border-left: 2px solid #8b4513;
-            }
-
-            .lunar-day-event .desktop-event-item.type-7 {
-                color: #e91e63;
-                background: rgba(233, 30, 99, 0.1);
-                border-left: 2px solid #e91e63;
-            }
-
-            .lunar-day-event .desktop-event-item.type-8 {
-                color: #00bcd4;
-                background: rgba(0, 188, 212, 0.1);
-                border-left: 2px solid #00bcd4;
-            }
-
-            .lunar-day-event .desktop-event-item.type-9 {
-                color: #f57f17;
-                background: rgba(255, 235, 59, 0.1);
-                border-left: 2px solid #f57f17;
-            }
-
-            .lunar-day-event .desktop-event-item:hover {
-                transform: scale(1.02);
-            }
-
-            .lunar-day-event .desktop-event-item.type-0:hover {
-                background: rgba(149, 165, 166, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-1:hover {
-                background: rgba(231, 76, 60, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-2:hover {
-                background: rgba(52, 152, 219, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-3:hover {
-                background: rgba(39, 174, 96, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-4:hover {
-                background: rgba(155, 89, 182, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-5:hover {
-                background: rgba(243, 156, 18, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-6:hover {
-                background: rgba(139, 69, 19, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-7:hover {
-                background: rgba(233, 30, 99, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-8:hover {
-                background: rgba(0, 188, 212, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item.type-9:hover {
-                background: rgba(255, 235, 59, 0.2);
-            }
-
-            .lunar-day-event .desktop-event-item:last-child {
-                margin-bottom: 0;
-            }
-
-            /* Mobile event indicators - multiple colored dots */
-            .lunar-day-event.mobile-event {
-                display: flex !important;
-                justify-content: center;
-                align-items: center;
-                gap: 2px;
-                position: absolute;
-                bottom: 8px;
-                left: 50%;
-                transform: translateX(-50%);
-                right: auto;
-                padding: 0;
-                margin: 0;
-                font-size: 0;
-                color: transparent;
-                min-width: 20px;
-                min-height: 6px;
-                overflow: visible;
-                text-overflow: unset;
-            }
-
-            .lunar-day-event.mobile-event .event-dot {
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
-                display: inline-block !important;
-                transition: all 0.2s ease;
-            }
-
-            .lunar-day-event.mobile-event .event-dot:hover {
-                transform: scale(1.5);
-            }
-
-            /* Event dot colors */
-            .lunar-day-event.mobile-event .event-dot.type-0 {
-                background: #95a5a6;
-                /* Gray - Default/No category */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-1 {
-                background: #e74c3c;
-                /* Red - National events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-2 {
-                background: #3498db;
-                /* Blue - Historical events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-3 {
-                background: #27ae60;
-                /* Green - International events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-4 {
-                background: #9b59b6;
-                /* Purple - Professional events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-5 {
-                background: #f39c12;
-                /* Orange - Social events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-6 {
-                background: #8b4513;
-                /* Brown - Memorial events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-7 {
-                background: #e91e63;
-                /* Pink - Celebration events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-8 {
-                background: #00bcd4;
-                /* Cyan - Cultural events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-9 {
-                background: #f57f17;
-                /* Yellow - Religious events */
-            }
-
-            .lunar-day-event.mobile-event .event-dot.type-5 {
-                background: #9b59b6;
-                /* Purple - Historical events */
-            }
-
-            .lunar-calendar-day.other-month .lunar-lunar-day-number,
-            .lunar-calendar-day.other-month .lunar-lunar-day {
-                color: #ccc;
-            }
-
-            /* Loading Indicator */
-            .lunar-loading-indicator {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 8px;
-                margin: 10px 0;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            }
-
-            .lunar-loading-spinner {
-                width: 24px;
-                height: 24px;
-                border: 3px solid #f3f3f3;
-                border-top: 3px solid #007bff;
-                border-radius: 50%;
-                animation: lunar-spin 1s linear infinite;
-                margin-right: 12px;
-            }
-
-            .lunar-loading-text {
-                color: #666;
-                font-size: 0.9rem;
-                font-weight: 500;
-            }
-
-            /* Full Page Loading Overlay */
-            .lunar-page-loading-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-                backdrop-filter: blur(5px);
-            }
-
-            .lunar-page-loading-content {
-                background: white;
-                padding: 40px;
-                border-radius: 15px;
-                text-align: center;
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-                max-width: 300px;
-                width: 90%;
-            }
-
-            .lunar-page-loading-spinner {
-                width: 50px;
-                height: 50px;
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #007bff;
-                border-radius: 50%;
-                animation: lunar-spin 1s linear infinite;
-                margin: 0 auto 20px auto;
-            }
-
-            .lunar-page-loading-text {
-                color: #333;
-                font-size: 1.1rem;
-                font-weight: 500;
-                margin: 0;
-            }
-
-            @keyframes lunar-spin {
-                0% {
-                    transform: rotate(0deg);
-                }
-
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-
-            /* Disabled state for navigation buttons */
-            .lunar-nav-arrow:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-                pointer-events: none;
-            }
-
-            /* Disable text selection on calendar grid */
-            .lunar-calendar-grid * {
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            }
-
-            /* Allow selection for input fields and buttons */
-            .lunar-calendar-container input,
-            .lunar-calendar-container button,
-            .lunar-calendar-container select {
-                user-select: auto;
-                -webkit-user-select: auto;
-                -moz-user-select: auto;
-                -ms-user-select: auto;
-            }
-
-            /* Responsive Design */
-            @media (max-width: 768px) {
-                .lunar-current-date-section {
-                    flex-direction: column;
-                }
-
-                .lunar-date-column:not(:last-child)::after {
-                    display: none;
-                }
-
-                .lunar-date-number {
-                    font-size: 3rem;
-                }
-
-                .lunar-calendar-nav {
-                    flex-direction: column;
-                    gap: 15px;
-                }
-
-                .lunar-nav-center {
-                    flex-direction: column;
-                    gap: 10px;
-                }
-
-                .lunar-calendar-day {
-                    min-height: 80px;
-                    padding: 5px;
-                }
-
-                .lunar-day-number {
-                    font-size: 1rem;
-                }
-
-                .lunar-lunar-day {
-                    font-size: 0.7rem;
-                }
-
-                .lunar-day-event {
-                    font-size: 0.6rem;
-                }
-            }
-
-            @media (max-width: 680px) {
-                .lunar-calendar-container {
-                    margin: 10px;
-                    border-radius: 10px;
-                }
-
-                .lunar-calendar-header {
-                    padding: 20px;
-                }
-
-                .lunar-calendar-header h1 {
-                    font-size: 2rem;
-                }
-
-                .lunar-date-column {
-                    padding: 20px;
-                }
-
-                .lunar-date-number {
-                    font-size: 2.5rem;
-                }
-
-                .lunar-calendar-day {
-                    min-height: 60px;
-                }
-
-                /* Hide text events on mobile, show only dots */
-                .lunar-day-event:not(.mobile-event) {
-                    display: none !important;
-                }
-
-                .lunar-day-event.mobile-event {
-                    display: flex !important;
-                }
-            }
-        </style>
         <div class="lunar-calendar-container">
-            <!-- Header -->
-            <div class="lunar-calendar-header">
-                <h1>Lịch Âm Dương</h1>
-                <p>Tra cứu lịch âm dương Việt Nam</p>
-            </div>
 
-            <!-- Current Date Display with prev/next day buttons -->
-            <div class="lunar-current-date-section">
-                <div>
-                    <button class="lunar-date-nav-btn" id="prev-day-btn" title="Ngày trước">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="lunar-date-nav-btn" id="next-day-btn" title="Ngày tiếp theo">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-                <div class="lunar-date-column lunar-date-column-gregorian">
-                    <div class="lunar-date-label">
-                        <i class="fas fa-calendar-alt"></i>
-                        Dương lịch
+            <div class="lunar-current-date-infos">
+                <!-- Current Date Display with prev/next day buttons -->
+                <div class="lunar-current-date-section">
+                    <div class="calendar-controls">
+                        <button class="lunar-date-nav-btn" id="prev-day-btn" title="Ngày trước">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="lunar-date-nav-btn" id="next-day-btn" title="Ngày tiếp theo">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <div class="lunar-date-number" id="current-gregorian-day">08</div>
-                    <div class="lunar-date-month-year" id="current-gregorian-month-year">Tháng 08 năm 2025</div>
-                    <div class="lunar-date-day" id="current-gregorian-day-name">Thứ 6</div>
-                </div>
-                <div class="lunar-date-column lunar-date-column-lunar">
-                    <div class="lunar-date-label">
-                        <i class="fas fa-moon"></i>
-                        Âm lịch
+                    <div class="lunar-date-column lunar-date-column-gregorian">
+                        <div class="lunar-date-label">
+                            <?php if (!empty($gregorian_icon_html)): ?>
+                                <?php echo $gregorian_icon_html; ?>
+                            <?php else: ?>
+                                <i class="fas fa-calendar-alt"></i>
+                            <?php endif; ?>
+                            Dương lịch
+                        </div>
+                        <div class="lunar-date-number" id="current-gregorian-day">08</div>
+                        <div class="lunar-date-month-year" id="current-gregorian-month-year">Tháng 08 năm 2025</div>
+                        <div class="lunar-date-day" id="current-gregorian-day-name">Thứ 6</div>
                     </div>
-                    <div class="lunar-date-number" id="current-lunar-day">15</div>
-                    <div class="lunar-date-month-year" id="current-lunar-month-year">Tháng 06 năm Ất Tỵ</div>
-                    <div class="lunar-info" id="current-lunar-details">Ngày Kỷ Dậu - Tháng Quý Mùi</div>
+                    <div class="lunar-date-column lunar-date-column-lunar">
+                        <div class="lunar-date-label">
+                            <?php if (!empty($lunar_icon_html)): ?>
+                                <?php echo $lunar_icon_html; ?>
+                            <?php else: ?>
+                                <i class="fas fa-moon"></i>
+                            <?php endif; ?>
+                            Âm lịch
+                        </div>
+                        <div class="lunar-date-number" id="current-lunar-day">15</div>
+                        <div class="lunar-date-month-year" id="current-lunar-month-year">Tháng 06 năm Ất Tỵ</div>
+                        <div class="lunar-info" id="current-lunar-details">Ngày Kỷ Dậu - Tháng Quý Mùi</div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Holiday Information -->
-            <div class="lunar-holiday-info">
-                <div class="lunar-holiday-title">Thông tin ngày lễ hôm nay</div>
-                <div class="lunar-holiday-content" id="holiday-info">Không có</div>
+                <!-- Holiday Information -->
+                <div class="lunar-holiday-info">
+                    <div class="lunar-holiday-title">Thông tin ngày lễ hôm nay</div>
+                    <div class="lunar-holiday-content" id="holiday-info">Không có</div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="lunar-loading-indicator" style="display: none;">
+                    <div class="lunar-loading-spinner"></div>
+                    <span class="lunar-loading-text">Đang tải dữ liệu...</span>
+                </div>
             </div>
 
             <!-- Navigation Bar -->
             <div class="lunar-calendar-nav">
-                <div>
+                <div class="current-month-navigation">
                     <button class="lunar-nav-arrow" id="prev-month">
                         <i class="fas fa-chevron-left"></i>
                     </button>
@@ -1338,23 +537,11 @@ class LunarCanlendarBlock extends Block
                         <option value="2027">2027</option>
                     </select>
                     <button class="lunar-view-btn" id="view-btn">Xem</button>
-                    <button class="lunar-today-btn" id="today-btn">Hôm nay</button>
+                    <?php if ($show_today_button): ?>
+                        <button class="lunar-today-btn" id="today-btn">Hôm nay</button>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <!-- Loading Indicator -->
-            <div id="loading-indicator" class="lunar-loading-indicator" style="display: none;">
-                <div class="lunar-loading-spinner"></div>
-                <span class="lunar-loading-text">Đang tải dữ liệu...</span>
-            </div>
-
-            <!-- Full Page Loading Overlay -->
-            <div id="page-loading-overlay" class="lunar-page-loading-overlay" style="display: none;">
-                <div class="lunar-page-loading-content">
-                    <div class="lunar-page-loading-spinner"></div>
-                </div>
-            </div>
-
             <!-- Calendar Grid -->
             <div class="lunar-calendar-grid">
                 <div class="lunar-weekdays">
@@ -1391,12 +578,13 @@ class LunarCanlendarBlock extends Block
             let selectedHolidays = {};
 
             // Calendar configuration options
-            const calendarConfig = {
-                showTodayButton: true,  // Set to false to hide today button
+            window.calendarConfig = {
+                showTodayButton: <?php echo $show_today_button ? 'true' : 'false'; ?>,  // Set to false to hide today button
                 todayButtonText: 'Hôm nay',
                 maxHolidayInfoItems: 1,  // Maximum number of events to show in holiday info section
                 showAdditionalEventsMessage: false  // Set to true to show "Còn X sự kiện khác" message
             };
+            const calendarConfig = window.calendarConfig;
 
             // Function to update calendar configuration
             // Usage:
@@ -2002,7 +1190,10 @@ class LunarCanlendarBlock extends Block
 
                             // Thông tin địa điểm
                             if (event.location) {
-                                eventDetails += `<div class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</div>`;
+                                const locationText = typeof event.location === 'object'
+                                    ? (event.location.name || event.location.address || JSON.stringify(event.location))
+                                    : event.location;
+                                eventDetails += `<div class="event-location"><i class="fas fa-map-marker-alt"></i> ${locationText}</div>`;
                             }
 
                             // Thông tin năm lịch sử
@@ -2021,10 +1212,16 @@ class LunarCanlendarBlock extends Block
                                 eventLink = `<div class="event-link"><a href="${event.event_url}" target="_blank"><i class="fas fa-external-link-alt"></i> Xem chi tiết</a></div>`;
                             }
 
+                            // Only show description if it exists and is different from title
+                            let descriptionHTML = '';
+                            if (event.description && event.description.trim() !== '' && event.description !== event.title) {
+                                descriptionHTML = `<div class="holiday-event-description">${event.description}</div>`;
+                            }
+
                             holidayHTML += `
                             <div class="holiday-event-item ${eventTypeClass}">
                                 <div class="holiday-event-title">${event.title}</div>
-                                <div class="holiday-event-description">${event.description}</div>
+                                ${descriptionHTML}
                                 ${eventDetails}
                                 <div class="holiday-event-type">${eventTypeName}</div>
                                 ${eventLink}
@@ -2259,7 +1456,7 @@ class LunarCanlendarBlock extends Block
                                 eventsToShow.forEach((event, index) => {
                                     const eventSpan = document.createElement('span');
                                     eventSpan.className = `desktop-event-item type-${event.type || 1}`;
-                                    eventSpan.textContent = event.title.length > 20 ? event.title.substring(0, 20) + '...' : event.title;
+                                    eventSpan.textContent = event.title.length > 48 ? event.title.substring(0, 48) + '...' : event.title;
                                     eventSpan.title = event.title + ': ' + event.description;
 
                                     if (index > 0) {

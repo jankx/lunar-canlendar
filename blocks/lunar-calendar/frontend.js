@@ -39,6 +39,11 @@
             days: document.getElementById('calendar-days')
         };
 
+        // Hide today button if config says so
+        if(el.todayBtn && typeof window!=='undefined' && window.calendarConfig && window.calendarConfig.showTodayButton===false){
+            el.todayBtn.style.display='none';
+        }
+
         function getLunarDate(mDate){
             try{
                 if(window._calendar && window._calendar.SolarDate){

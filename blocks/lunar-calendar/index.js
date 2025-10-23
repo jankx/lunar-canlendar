@@ -2,7 +2,7 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, RangeControl, ToggleControl, SelectControl } from '@wordpress/components';
+import { PanelBody, RangeControl, ToggleControl, SelectControl, TextareaControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import './style.css';
 
@@ -16,7 +16,10 @@ registerBlockType('jankx/lunar-calendar', {
             lunarDayFontSize,
             gregorianIcon,
             lunarIcon,
-            showIcons
+            showIcons,
+            showTodayButton,
+            gregorianIconHtml,
+            lunarIconHtml
         } = attributes;
 
         const props = useBlockProps({ className: 'lunar-calendar-container lunar-calendar-editor-preview' });
@@ -62,12 +65,21 @@ registerBlockType('jankx/lunar-calendar', {
                             step={0.1}
                         />
                         {showIcons && (
-                            <SelectControl
-                                label={__('Icon', 'lunar-calendar')}
-                                value={gregorianIcon}
-                                options={iconOptions}
-                                onChange={(value) => setAttributes({ gregorianIcon: value })}
-                            />
+                            <>
+                                <SelectControl
+                                    label={__('Icon', 'lunar-calendar')}
+                                    value={gregorianIcon}
+                                    options={iconOptions}
+                                    onChange={(value) => setAttributes({ gregorianIcon: value })}
+                                />
+                                <TextareaControl
+                                    label={__('Custom Icon HTML/SVG (ưu tiên)', 'lunar-calendar')}
+                                    help={__('Paste HTML của font icon hoặc SVG. Nếu có, sẽ override icon dropdown ở trên.', 'lunar-calendar')}
+                                    value={gregorianIconHtml}
+                                    onChange={(value) => setAttributes({ gregorianIconHtml: value })}
+                                    rows={4}
+                                />
+                            </>
                         )}
                     </PanelBody>
                     <PanelBody title={__('Âm lịch', 'lunar-calendar')} initialOpen={true}>
@@ -80,12 +92,21 @@ registerBlockType('jankx/lunar-calendar', {
                             step={0.1}
                         />
                         {showIcons && (
-                            <SelectControl
-                                label={__('Icon', 'lunar-calendar')}
-                                value={lunarIcon}
-                                options={iconOptions}
-                                onChange={(value) => setAttributes({ lunarIcon: value })}
-                            />
+                            <>
+                                <SelectControl
+                                    label={__('Icon', 'lunar-calendar')}
+                                    value={lunarIcon}
+                                    options={iconOptions}
+                                    onChange={(value) => setAttributes({ lunarIcon: value })}
+                                />
+                                <TextareaControl
+                                    label={__('Custom Icon HTML/SVG (ưu tiên)', 'lunar-calendar')}
+                                    help={__('Paste HTML của font icon hoặc SVG. Nếu có, sẽ override icon dropdown ở trên.', 'lunar-calendar')}
+                                    value={lunarIconHtml}
+                                    onChange={(value) => setAttributes({ lunarIconHtml: value })}
+                                    rows={4}
+                                />
+                            </>
                         )}
                     </PanelBody>
                     <PanelBody title={__('Tùy chọn hiển thị', 'lunar-calendar')} initialOpen={false}>
@@ -93,6 +114,11 @@ registerBlockType('jankx/lunar-calendar', {
                             label={__('Hiển thị icons', 'lunar-calendar')}
                             checked={showIcons}
                             onChange={(value) => setAttributes({ showIcons: value })}
+                        />
+                        <ToggleControl
+                            label={__('Hiển thị button "Hôm nay"', 'lunar-calendar')}
+                            checked={showTodayButton}
+                            onChange={(value) => setAttributes({ showTodayButton: value })}
                         />
                     </PanelBody>
                 </InspectorControls>
@@ -113,7 +139,13 @@ registerBlockType('jankx/lunar-calendar', {
                         <div className="lunar-date-columns-wrapper">
                         <div className="lunar-date-column lunar-date-column-gregorian">
                             <div className="lunar-date-label">
-                                {showIcons && <i className={`fas fa-${gregorianIcon}`}></i>}
+                                {showIcons && (
+                                    gregorianIconHtml ? (
+                                        <span dangerouslySetInnerHTML={{ __html: gregorianIconHtml }}></span>
+                                    ) : (
+                                        <i className={`fas fa-${gregorianIcon}`}></i>
+                                    )
+                                )}
                                 Dương lịch
                             </div>
                             <div className="lunar-date-number" id="current-gregorian-day">08</div>
@@ -122,7 +154,13 @@ registerBlockType('jankx/lunar-calendar', {
                         </div>
                         <div className="lunar-date-column lunar-date-column-lunar">
                             <div className="lunar-date-label">
-                                {showIcons && <i className={`fas fa-${lunarIcon}`}></i>}
+                                {showIcons && (
+                                    lunarIconHtml ? (
+                                        <span dangerouslySetInnerHTML={{ __html: lunarIconHtml }}></span>
+                                    ) : (
+                                        <i className={`fas fa-${lunarIcon}`}></i>
+                                    )
+                                )}
                                 Âm lịch
                             </div>
                             <div className="lunar-date-number" id="current-lunar-day">15</div>
@@ -174,7 +212,7 @@ registerBlockType('jankx/lunar-calendar', {
                                 <option value="2027">2027</option>
                             </select>
                             <button className="lunar-view-btn" id="view-btn">Xem</button>
-                            <button className="lunar-today-btn" id="today-btn">Hôm nay</button>
+                            {showTodayButton && <button className="lunar-today-btn" id="today-btn">Hôm nay</button>}
                         </div>
                     </div>
                     <div id="loading-indicator" className="lunar-loading-indicator" style={{ display: 'none' }}>

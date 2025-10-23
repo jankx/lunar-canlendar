@@ -15,6 +15,39 @@
     "html": false,
     "align": ["wide", "full"]
   },
-  "attributes": {}
+  "attributes": {
+    "showTodayButton": {
+      "type": "boolean",
+      "default": false
+    },
+    "gregorianDayFontSize": {
+      "type": "number",
+      "default": 2
+    },
+    "lunarDayFontSize": {
+      "type": "number",
+      "default": 2
+    },
+    "gregorianIcon": {
+      "type": "string",
+      "default": "calendar-alt"
+    },
+    "lunarIcon": {
+      "type": "string",
+      "default": "moon"
+    },
+    "showIcons": {
+      "type": "boolean",
+      "default": true
+    },
+    "gregorianIconHtml": {
+      "type": "string",
+      "default": ""
+    },
+    "lunarIconHtml": {
+      "type": "string",
+      "default": ""
+    }
+  }
 }
 
