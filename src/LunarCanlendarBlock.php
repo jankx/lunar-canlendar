@@ -41,41 +41,26 @@ class LunarCanlendarBlock extends Block
     public static function get_events_from_database($month, $year) {
         global $wpdb;
 
-        // Lấy table prefix và tên bảng
-        $table_prefix = $wpdb->prefix;
-        $events_table = $table_prefix . 'em_events';
-        $posts_table = $table_prefix . 'posts';
-
         // Tính toán ngày đầu và cuối tháng
         $start_date = sprintf('%04d-%02d-01 00:00:00', $year, $month);
         $last_day = date('t', strtotime($start_date));
         $end_date = sprintf('%04d-%02d-%02d 23:59:59', $year, $month, $last_day);
 
-        // Kiểm tra bảng events có tồn tại không
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$events_table'");
-        if (!$table_exists) {
-            return [];
-        }
-
-        // Truy vấn events từ database - chỉ lấy events trong tháng đang xem
+        // Truy vấn events từ wp-event-solution plugin (post type: etn)
         $sql = $wpdb->prepare("
-            SELECT
-                e.event_id,
-                e.post_id,
-                e.event_name,
-                e.event_start_date,
-                e.event_end_date,
-                e.location_id,
-                e.event_active_status,
+            SELECT 
+                p.ID as post_id,
+                p.post_title as event_name,
                 p.post_excerpt,
-                p.post_content
-            FROM $events_table e
-            INNER JOIN $posts_table p ON e.post_id = p.ID
-            WHERE p.post_status = 'publish'
-            AND e.event_active_status = 1
-            AND e.event_start_date >= %s
-            AND e.event_start_date <= %s
-            ORDER BY e.event_start_date ASC
+                p.post_content,
+                p.post_status
+            FROM {$wpdb->posts} p
+            INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = 'etn_start_date'
+            WHERE p.post_type = 'etn'
+            AND p.post_status = 'publish'
+            AND pm_start.meta_value >= %s
+            AND pm_start.meta_value <= %s
+            ORDER BY pm_start.meta_value ASC
         ", $start_date, $end_date);
 
         $results = $wpdb->get_results($sql);
@@ -101,16 +86,21 @@ class LunarCanlendarBlock extends Block
         $events = [];
 
         foreach ($results as $row) {
-            // Lấy ngày trong tháng từ event_start_date
-            $event_start_date = new \DateTime($row->event_start_date);
+            // Lấy ngày bắt đầu từ meta field etn_start_date
+            $event_start_date_str = get_post_meta($row->post_id, 'etn_start_date', true);
+            if (!$event_start_date_str) {
+                continue; // Bỏ qua nếu không có ngày bắt đầu
+            }
+            
+            $event_start_date = new \DateTime($event_start_date_str);
             $day = intval($event_start_date->format('j'));
 
             // Đơn giản hóa cho lịch âm dương: chỉ hiển thị "Sự kiện"
             $time_display = 'Sự kiện';
 
-            // Lấy category đầu tiên để xác định type
+            // Lấy category đầu tiên để xác định type (wp-event-solution dùng etn_category)
             $event_type = 'default'; // mặc định là không có category (màu xám)
-            $categories = get_the_terms($row->post_id, 'event-categories');
+            $categories = get_the_terms($row->post_id, 'etn_category');
             if (!empty($categories) && !is_wp_error($categories)) {
                 $first_category = reset($categories);
                 $category_slug = $first_category->slug;
@@ -156,17 +146,8 @@ class LunarCanlendarBlock extends Block
                 $description .= ' (' . $event_year . ') - ' . $years_ago . ' năm trước';
             }
 
-            // Lấy thông tin địa điểm
-            $location_info = '';
-            if ($row->location_id) {
-                $location_name = $wpdb->get_var($wpdb->prepare(
-                    "SELECT location_name FROM {$table_prefix}em_locations WHERE location_id = %d",
-                    $row->location_id
-                ));
-                if ($location_name) {
-                    $location_info = $location_name;
-                }
-            }
+            // Lấy thông tin địa điểm từ meta field etn_event_location
+            $location_info = get_post_meta($row->post_id, 'etn_event_location', true) ?: '';
 
             // Kiểm tra recurring từ database
             $is_recurring = false;
@@ -196,6 +177,10 @@ class LunarCanlendarBlock extends Block
                 }
             }
 
+            // Lấy ngày kết thúc từ meta field etn_end_date
+            $event_end_date_str = get_post_meta($row->post_id, 'etn_end_date', true);
+            $end_date = $event_end_date_str ?: $event_start_date_str;
+
             $events[] = [
                 'day' => $day,
                 'title' => $row->event_name ?: 'Sự kiện',
@@ -206,10 +191,10 @@ class LunarCanlendarBlock extends Block
                 'description' => $description,
                 'isToday' => $event_start_date->format('Y-m-d') === date('Y-m-d'),
                 'isHoliday' => in_array($event_type, ['national', 'international']),
-                'event_id' => $row->event_id,
+                'event_id' => $row->post_id, // Sử dụng post_id làm event_id
                 'post_id' => $row->post_id,
                 'start_date' => $event_start_date->format('Y-m-d'),
-                'end_date' => $row->event_end_date,
+                'end_date' => $end_date,
                 'time_display' => $time_display,
                 'location' => $location_info,
                 'event_url' => get_permalink($row->post_id),
