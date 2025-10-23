@@ -275,27 +275,37 @@ class LunarCanlendarBlock extends Block
     public function init()
     {
         add_action('wp_enqueue_scripts', function () {
-            // Third-party deps
+            $assets_url = get_stylesheet_directory_uri() . '/vendor/jankx/lunar-canlendar/assets';
+
+            // Third-party deps - Local files
             wp_enqueue_script(
                 'moment',
-                'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js',
+                $assets_url . '/js/moment.min.js',
                 array(),
                 '2.29.4',
                 true
             );
             wp_enqueue_script(
                 'moment-locale-vi',
-                'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js',
+                $assets_url . '/js/vi.min.js',
                 array('moment'),
                 '2.29.4',
                 true
             );
             wp_enqueue_script(
                 'lunar-date-vi',
-                'https://cdn.jsdelivr.net/npm/@nghiavuive/lunar_date_vi@2.0.1/dist/index.umd.min.js',
+                $assets_url . '/js/lunar_date_vi.min.js',
                 array(),
-                null,
+                '2.0.1',
                 true
+            );
+
+            // FontAwesome CSS
+            wp_enqueue_style(
+                'font-awesome',
+                $assets_url . '/fontawesome/all.min.css',
+                array(),
+                '6.0.0'
             );
 
             // Block frontend
@@ -448,7 +458,6 @@ class LunarCanlendarBlock extends Block
         }
         ob_start();
         ?>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <div class="lunar-calendar-container">
 
             <div class="lunar-current-date-infos">
@@ -559,10 +568,6 @@ class LunarCanlendarBlock extends Block
             </div>
         </div>
 
-        <!-- Scripts -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@nghiavuive/lunar_date_vi@2.0.1/dist/index.umd.min.js"></script>
         <script>
             // Vietnamese day names
             const dayNames = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
@@ -622,16 +627,13 @@ class LunarCanlendarBlock extends Block
                         showLoadingState();
                     }
 
-                    // Build API URL with full params
-                    const apiUrl = new URL(window.lunarCalendarApiUrl || '');
-                    apiUrl.searchParams.append('month', month);
-                    apiUrl.searchParams.append('year', year);
-                    apiUrl.searchParams.append('format', 'json');
-                    apiUrl.searchParams.append('locale', 'vi');
-                    apiUrl.searchParams.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    // Build API URL with full params (append to existing URL)
+                    const baseUrl = window.lunarCalendarApiUrl || '';
+                    const separator = baseUrl.includes('?') ? '&' : '?';
+                    const apiUrl = `${baseUrl}${separator}month=${month}&year=${year}&format=json&locale=vi&timezone=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`;
 
                     // Make real AJAX request
-                    const response = await fetch(apiUrl.toString(), {
+                    const response = await fetch(apiUrl, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -837,7 +839,7 @@ class LunarCanlendarBlock extends Block
             // Test API endpoint
             async function testAPI() {
                 try {
-                    const testUrl = (window.lunarCalendarApiUrl || '') + '?month=8&year=2025';
+                    const testUrl = (window.lunarCalendarApiUrl || '') + '&month=8&year=2025';
 
                     const response = await fetch(testUrl, {
                         method: 'GET',
