@@ -276,6 +276,7 @@ class LunarCanlendarBlock extends Block
     {
         add_action('wp_enqueue_scripts', function () {
             $assets_url = get_stylesheet_directory_uri() . '/vendor/jankx/lunar-canlendar/assets';
+            $version = '1.0.1-' . filemtime(get_stylesheet_directory() . '/vendor/jankx/lunar-canlendar/blocks/lunar-calendar/style.css');
 
             // Third-party deps - Local files
             wp_enqueue_script(
@@ -313,7 +314,7 @@ class LunarCanlendarBlock extends Block
                 'jankx-lunar-calendar-frontend',
                 get_stylesheet_directory_uri() . '/vendor/jankx/lunar-canlendar/blocks/lunar-calendar/build/frontend.js',
                 array('moment', 'moment-locale-vi', 'lunar-date-vi'),
-                '1.0.0',
+                $version,
                 true
             );
         });
