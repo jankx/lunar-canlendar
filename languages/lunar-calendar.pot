@@ -1,0 +1,231 @@
+# Copyright (C) 2025 Jankx Lunar Calendar
+# This file is distributed under the same license as the Jankx Lunar Calendar package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Jankx Lunar Calendar 1.0.1\n"
+"Report-Msgid-Bugs-To: https://github.com/jankx/lunar-calendar/issues\n"
+"POT-Creation-Date: 2025-10-25 15:48:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: src/LunarCanlendarBlock.php:101
+msgid "Event"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:172
+msgid "daily"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:173
+msgid "weekly"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:174
+msgid "monthly"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:175
+msgid "yearly"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:184
+msgid "every %d %s"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:155
+msgid "%d year ago"
+msgid_plural "%d years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/LunarCanlendarBlock.php:479
+msgid "Previous Day"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:482
+msgid "Next Day"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:493
+msgid "Gregorian Calendar"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:506
+#: blocks/lunar-calendar/block.json:6
+#: blocks/lunar-calendar/index.js:85
+msgid "Lunar Calendar"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:516
+msgid "Today's Holiday Information"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:517
+msgid "None"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:523
+msgid "Loading data..."
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:533
+#: src/LunarCanlendarBlock.php:886
+#: src/LunarCanlendarBlock.php:887
+#: src/LunarCanlendarBlock.php:888
+#: src/LunarCanlendarBlock.php:889
+#: src/LunarCanlendarBlock.php:890
+#: src/LunarCanlendarBlock.php:891
+#: src/LunarCanlendarBlock.php:892
+#: src/LunarCanlendarBlock.php:893
+#: src/LunarCanlendarBlock.php:894
+#: src/LunarCanlendarBlock.php:895
+#: src/LunarCanlendarBlock.php:896
+#: src/LunarCanlendarBlock.php:897
+#. translators: 1: month number, 2: year
+msgid "Month %d"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:533
+#: src/LunarCanlendarBlock.php:1537
+msgid "Month %d - %d"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:560
+#: src/LunarCanlendarBlock.php:608
+msgid "Today"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:560
+msgid "View"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:569
+#: src/LunarCanlendarBlock.php:587
+msgid "Monday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:570
+#: src/LunarCanlendarBlock.php:588
+msgid "Tuesday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:571
+#: src/LunarCanlendarBlock.php:589
+msgid "Wednesday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:572
+#: src/LunarCanlendarBlock.php:590
+msgid "Thursday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:573
+#: src/LunarCanlendarBlock.php:591
+msgid "Friday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:574
+#: src/LunarCanlendarBlock.php:592
+msgid "Saturday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:575
+#: src/LunarCanlendarBlock.php:586
+msgid "Sunday"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:1090
+#. translators: 1: month number, 2: year
+msgid "Month %1$s %2$d"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:1103
+#. translators: 1: lunar month, 2: lunar year name
+msgid "Month %1$s Year %2$s"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:1109
+#. translators: 1: day name, 2: month name
+msgid "Day %1$s - Month %2$s"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:1237
+msgid "View Details"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:1257
+#. translators: %d: number of remaining events
+msgid "%d more events on this day"
+msgstr ""
+
+#: src/LunarCanlendarBlock.php:1264
+msgid "No events"
+msgstr ""
+
+#: blocks/lunar-calendar/block.json:9
+msgid "Display interactive lunar calendar"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:58
+msgid "Current day font size"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:70
+#: blocks/lunar-calendar/index.js:97
+msgid "Icon"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:76
+#: blocks/lunar-calendar/index.js:103
+msgid "Custom Icon HTML/SVG (priority)"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:77
+#: blocks/lunar-calendar/index.js:104
+msgid "Paste HTML of font icon or SVG. If present, will override the dropdown icon above."
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:112
+msgid "Display Options"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:114
+msgid "Show icons"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:119
+msgid "Show \"Today\" button"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:130
+msgid "Vietnamese Lunar Calendar Lookup"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:136
+msgid "Previous"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:152
+msgid "Month 08 2025"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:167
+msgid "Month 06 Year At Ty"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:168
+msgid "Day Ky Dau - Month Quy Mui"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:173
+msgid "Next"
+msgstr ""
+
+#: blocks/lunar-calendar/index.js:187
+msgid "Month 8 - 2025"
+msgstr ""
+

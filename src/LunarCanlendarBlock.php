@@ -98,7 +98,7 @@ class LunarCanlendarBlock extends Block
             $day = intval($event_start_date->format('j'));
 
             // Đơn giản hóa cho lịch âm dương: chỉ hiển thị "Sự kiện"
-            $time_display = 'Sự kiện';
+            $time_display = __('Event', 'lunar-calendar');
 
             // Lấy category đầu tiên để xác định type (wp-event-solution dùng etn_category)
             $event_type = 'default'; // mặc định là không có category (màu xám)
@@ -151,7 +151,10 @@ class LunarCanlendarBlock extends Block
 
             // Thêm thông tin lịch sử vào description nếu có
             if (!empty($description) && $event_year && $years_ago > 0) {
-                $description .= ' (' . $event_year . ') - ' . $years_ago . ' năm trước';
+                $description .= ' (' . $event_year . ') - ' . sprintf(
+                    _n('%d year ago', '%d years ago', $years_ago, 'lunar-calendar'),
+                    $years_ago
+                );
             }
 
             // Lấy thông tin địa điểm từ meta field etn_event_location
@@ -169,10 +172,10 @@ class LunarCanlendarBlock extends Block
                 $is_recurring = true;
 
                 $freq_map = [
-                    'daily' => 'hàng ngày',
-                    'weekly' => 'hàng tuần',
-                    'monthly' => 'hàng tháng',
-                    'yearly' => 'hàng năm',
+                    'daily' => __('daily', 'lunar-calendar'),
+                    'weekly' => __('weekly', 'lunar-calendar'),
+                    'monthly' => __('monthly', 'lunar-calendar'),
+                    'yearly' => __('yearly', 'lunar-calendar'),
                 ];
 
                 if (isset($freq_map[$recurrence_freq])) {
@@ -180,7 +183,11 @@ class LunarCanlendarBlock extends Block
                     if ($interval == 1) {
                         $recurrence_pattern = $freq_map[$recurrence_freq];
                     } else {
-                        $recurrence_pattern = "mỗi {$interval} " . $freq_map[$recurrence_freq];
+                        $recurrence_pattern = sprintf(
+                            __('every %d %s', 'lunar-calendar'),
+                            $interval,
+                            $freq_map[$recurrence_freq]
+                        );
                     }
                 }
             }
@@ -191,7 +198,7 @@ class LunarCanlendarBlock extends Block
 
             $events[] = [
                 'day' => $day,
-                'title' => $row->event_name ?: 'Sự kiện',
+                'title' => $row->event_name ?: __('Event', 'lunar-calendar'),
                 'year' => $event_year,
                 'yearsAgo' => $years_ago,
                 'type' => $type_number,
@@ -469,10 +476,10 @@ class LunarCanlendarBlock extends Block
                 <!-- Current Date Display with prev/next day buttons -->
                 <div class="lunar-current-date-section">
                     <div class="calendar-controls">
-                        <button class="lunar-date-nav-btn" id="prev-day-btn" title="Ngày trước">
+                        <button class="lunar-date-nav-btn" id="prev-day-btn" title="<?php echo esc_attr__('Previous Day', 'lunar-calendar'); ?>">
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button class="lunar-date-nav-btn" id="next-day-btn" title="Ngày tiếp theo">
+                        <button class="lunar-date-nav-btn" id="next-day-btn" title="<?php echo esc_attr__('Next Day', 'lunar-calendar'); ?>">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -483,7 +490,7 @@ class LunarCanlendarBlock extends Block
                             <?php else: ?>
                                 <i class="fas fa-calendar-alt"></i>
                             <?php endif; ?>
-                            Dương lịch
+                            <?php esc_html_e('Gregorian Calendar', 'lunar-calendar'); ?>
                         </div>
                         <div class="lunar-date-number" id="current-gregorian-day">08</div>
                         <div class="lunar-date-month-year" id="current-gregorian-month-year">Tháng 08 năm 2025</div>
@@ -496,7 +503,7 @@ class LunarCanlendarBlock extends Block
                             <?php else: ?>
                                 <i class="fas fa-moon"></i>
                             <?php endif; ?>
-                            Âm lịch
+                            <?php esc_html_e('Lunar Calendar', 'lunar-calendar'); ?>
                         </div>
                         <div class="lunar-date-number" id="current-lunar-day">15</div>
                         <div class="lunar-date-month-year" id="current-lunar-month-year">Tháng 06 năm Ất Tỵ</div>
@@ -506,14 +513,14 @@ class LunarCanlendarBlock extends Block
 
                 <!-- Holiday Information -->
                 <div class="lunar-holiday-info">
-                    <div class="lunar-holiday-title">Thông tin ngày lễ hôm nay</div>
-                    <div class="lunar-holiday-content" id="holiday-info">Không có</div>
+                    <div class="lunar-holiday-title"><?php esc_html_e('Today\'s Holiday Information', 'lunar-calendar'); ?></div>
+                    <div class="lunar-holiday-content" id="holiday-info"><?php esc_html_e('None', 'lunar-calendar'); ?></div>
                 </div>
 
                 <!-- Loading Indicator -->
                 <div id="loading-indicator" class="lunar-loading-indicator" style="display: none;">
                     <div class="lunar-loading-spinner"></div>
-                    <span class="lunar-loading-text">Đang tải dữ liệu...</span>
+                    <span class="lunar-loading-text"><?php esc_html_e('Loading data...', 'lunar-calendar'); ?></span>
                 </div>
             </div>
 
@@ -523,25 +530,25 @@ class LunarCanlendarBlock extends Block
                     <button class="lunar-nav-arrow" id="prev-month">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <div class="lunar-current-month-year" id="current-month-year">Tháng 8 - 2025</div>
+                    <div class="lunar-current-month-year" id="current-month-year"><?php echo esc_html(sprintf(__('Month %d - %d', 'lunar-calendar'), 8, 2025)); ?></div>
                     <button class="lunar-nav-arrow" id="next-month">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
                 <div class="lunar-month-year-selectors">
                     <select id="month-selector">
-                        <option value="1">Tháng 1</option>
-                        <option value="2">Tháng 2</option>
-                        <option value="3">Tháng 3</option>
-                        <option value="4">Tháng 4</option>
-                        <option value="5">Tháng 5</option>
-                        <option value="6">Tháng 6</option>
-                        <option value="7">Tháng 7</option>
-                        <option value="8" selected>Tháng 8</option>
-                        <option value="9">Tháng 9</option>
-                        <option value="10">Tháng 10</option>
-                        <option value="11">Tháng 11</option>
-                        <option value="12">Tháng 12</option>
+                        <option value="1"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 1)); ?></option>
+                        <option value="2"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 2)); ?></option>
+                        <option value="3"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 3)); ?></option>
+                        <option value="4"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 4)); ?></option>
+                        <option value="5"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 5)); ?></option>
+                        <option value="6"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 6)); ?></option>
+                        <option value="7"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 7)); ?></option>
+                        <option value="8" selected><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 8)); ?></option>
+                        <option value="9"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 9)); ?></option>
+                        <option value="10"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 10)); ?></option>
+                        <option value="11"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 11)); ?></option>
+                        <option value="12"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 12)); ?></option>
                     </select>
                     <select id="year-selector">
                         <option value="2023">2023</option>
@@ -550,22 +557,22 @@ class LunarCanlendarBlock extends Block
                         <option value="2026">2026</option>
                         <option value="2027">2027</option>
                     </select>
-                    <button class="lunar-view-btn" id="view-btn">Xem</button>
+                    <button class="lunar-view-btn" id="view-btn"><?php esc_html_e('View', 'lunar-calendar'); ?></button>
                     <?php if ($show_today_button): ?>
-                        <button class="lunar-today-btn" id="today-btn">Hôm nay</button>
+                        <button class="lunar-today-btn" id="today-btn"><?php esc_html_e('Today', 'lunar-calendar'); ?></button>
                     <?php endif; ?>
                 </div>
             </div>
             <!-- Calendar Grid -->
             <div class="lunar-calendar-grid">
                 <div class="lunar-weekdays">
-                    <div class="lunar-weekday">Thứ hai</div>
-                    <div class="lunar-weekday">Thứ ba</div>
-                    <div class="lunar-weekday">Thứ tư</div>
-                    <div class="lunar-weekday">Thứ năm</div>
-                    <div class="lunar-weekday">Thứ sáu</div>
-                    <div class="lunar-weekday">Thứ bảy</div>
-                    <div class="lunar-weekday">Chủ nhật</div>
+                    <div class="lunar-weekday"><?php esc_html_e('Monday', 'lunar-calendar'); ?></div>
+                    <div class="lunar-weekday"><?php esc_html_e('Tuesday', 'lunar-calendar'); ?></div>
+                    <div class="lunar-weekday"><?php esc_html_e('Wednesday', 'lunar-calendar'); ?></div>
+                    <div class="lunar-weekday"><?php esc_html_e('Thursday', 'lunar-calendar'); ?></div>
+                    <div class="lunar-weekday"><?php esc_html_e('Friday', 'lunar-calendar'); ?></div>
+                    <div class="lunar-weekday"><?php esc_html_e('Saturday', 'lunar-calendar'); ?></div>
+                    <div class="lunar-weekday"><?php esc_html_e('Sunday', 'lunar-calendar'); ?></div>
                 </div>
                 <div class="lunar-calendar-days" id="calendar-days">
                     <!-- Calendar days will be generated by JavaScript -->
@@ -574,8 +581,16 @@ class LunarCanlendarBlock extends Block
         </div>
 
         <script>
-            // Vietnamese day names
-            const dayNames = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+            // Day names
+            const dayNames = <?php echo json_encode([
+                __('Sunday', 'lunar-calendar'),
+                __('Monday', 'lunar-calendar'),
+                __('Tuesday', 'lunar-calendar'),
+                __('Wednesday', 'lunar-calendar'),
+                __('Thursday', 'lunar-calendar'),
+                __('Friday', 'lunar-calendar'),
+                __('Saturday', 'lunar-calendar'),
+            ]); ?>;
 
             // Calendar Events Data Structure
             let calendarEvents = {
@@ -590,7 +605,7 @@ class LunarCanlendarBlock extends Block
             // Calendar configuration options
             window.calendarConfig = {
                 showTodayButton: <?php echo $show_today_button ? 'true' : 'false'; ?>,  // Set to false to hide today button
-                todayButtonText: 'Hôm nay',
+                todayButtonText: <?php echo json_encode(__('Today', 'lunar-calendar')); ?>,
                 maxHolidayInfoItems: 1,  // Maximum number of events to show in holiday info section
                 showAdditionalEventsMessage: false  // Set to true to show "Còn X sự kiện khác" message
             };
@@ -866,11 +881,21 @@ class LunarCanlendarBlock extends Block
             }
 
 
-            // Vietnamese month names
-            const monthNames = [
-                'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-                'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
-            ];
+            // Month names
+            const monthNames = <?php echo json_encode([
+                sprintf(__('Month %d', 'lunar-calendar'), 1),
+                sprintf(__('Month %d', 'lunar-calendar'), 2),
+                sprintf(__('Month %d', 'lunar-calendar'), 3),
+                sprintf(__('Month %d', 'lunar-calendar'), 4),
+                sprintf(__('Month %d', 'lunar-calendar'), 5),
+                sprintf(__('Month %d', 'lunar-calendar'), 6),
+                sprintf(__('Month %d', 'lunar-calendar'), 7),
+                sprintf(__('Month %d', 'lunar-calendar'), 8),
+                sprintf(__('Month %d', 'lunar-calendar'), 9),
+                sprintf(__('Month %d', 'lunar-calendar'), 10),
+                sprintf(__('Month %d', 'lunar-calendar'), 11),
+                sprintf(__('Month %d', 'lunar-calendar'), 12),
+            ]); ?>;
 
             // Vietnamese zodiac years
             const zodiacYears = [
@@ -1072,8 +1097,12 @@ class LunarCanlendarBlock extends Block
 
                     // Update Gregorian date display
                     document.getElementById('current-gregorian-day').textContent = gregorianDay.toString().padStart(2, '0');
+                    const monthYearFormat = <?php echo json_encode(
+                        /* translators: 1: month number, 2: year */
+                        __('Month %1$s %2$d', 'lunar-calendar')
+                    ); ?>;
                     document.getElementById('current-gregorian-month-year').textContent =
-                        `Tháng ${gregorianMonth.toString().padStart(2, '0')} năm ${gregorianYear}`;
+                        monthYearFormat.replace('%1$s', gregorianMonth.toString().padStart(2, '0')).replace('%2$d', gregorianYear);
                     document.getElementById('current-gregorian-day-name').textContent = dayName;
 
                     // Calculate lunar date for selected date
@@ -1081,10 +1110,18 @@ class LunarCanlendarBlock extends Block
 
                     // Update lunar date display
                     document.getElementById('current-lunar-day').textContent = lunarDate.day;
+                    const lunarMonthYearFormat = <?php echo json_encode(
+                        /* translators: 1: lunar month, 2: lunar year name */
+                        __('Month %1$s Year %2$s', 'lunar-calendar')
+                    ); ?>;
                     document.getElementById('current-lunar-month-year').textContent =
-                        `Tháng ${lunarDate.month} năm ${lunarDate.yearName}`;
+                        lunarMonthYearFormat.replace('%1$s', lunarDate.month).replace('%2$s', lunarDate.yearName);
+                    const lunarDetailsFormat = <?php echo json_encode(
+                        /* translators: 1: day name, 2: month name */
+                        __('Day %1$s - Month %2$s', 'lunar-calendar')
+                    ); ?>;
                     document.getElementById('current-lunar-details').textContent =
-                        `Ngày ${lunarDate.dayName} - Tháng ${lunarDate.monthName}`;
+                        lunarDetailsFormat.replace('%1$s', lunarDate.dayName).replace('%2$s', lunarDate.monthName);
 
                     // Update holiday info for selected date
                     this.updateHolidayInfo();
@@ -1205,7 +1242,10 @@ class LunarCanlendarBlock extends Block
 
                             // Thông tin năm lịch sử
                             if (event.year && event.yearsAgo) {
-                                eventDetails += `<div class="event-history"><i class="fas fa-history"></i> ${event.year} (${event.yearsAgo} năm trước)</div>`;
+                                const yearsAgoText = event.yearsAgo === 1 
+                                    ? <?php echo json_encode(__('%d year ago', 'lunar-calendar')); ?>
+                                    : <?php echo json_encode(__('%d years ago', 'lunar-calendar')); ?>;
+                                eventDetails += `<div class="event-history"><i class="fas fa-history"></i> ${event.year} (${yearsAgoText.replace('%d', event.yearsAgo)})</div>`;
                             }
 
                             // Thông tin recurring
@@ -1216,7 +1256,7 @@ class LunarCanlendarBlock extends Block
                             // Link đến trang sự kiện
                             let eventLink = '';
                             if (event.event_url) {
-                                eventLink = `<div class="event-link"><a href="${event.event_url}" target="_blank"><i class="fas fa-external-link-alt"></i> Xem chi tiết</a></div>`;
+                                eventLink = `<div class="event-link"><a href="${event.event_url}" target="_blank"><i class="fas fa-external-link-alt"></i> <?php echo esc_js(__('View Details', 'lunar-calendar')); ?></a></div>`;
                             }
 
                             // Only show description if it exists and is different from title
@@ -1239,14 +1279,18 @@ class LunarCanlendarBlock extends Block
                         // Show additional events count if there are more events than displayed
                         if (dayEvents.length > maxItems && calendarConfig.showAdditionalEventsMessage) {
                             const remainingCount = dayEvents.length - maxItems;
+                            const moreEventsText = <?php echo json_encode(
+                                /* translators: %d: number of remaining events */
+                                __('%d more events on this day', 'lunar-calendar')
+                            ); ?>;
                             holidayHTML += `<div class="additional-events-info">
                                 <i class="fas fa-info-circle"></i>
-                                Còn ${remainingCount} sự kiện khác trong ngày này
+                                ${moreEventsText.replace('%d', remainingCount)}
                             </div>`;
                         }
                     } else {
                         // Default message when no events for selected date
-                        holidayHTML = '<div class="no-events">Không có sự kiện nào</div>';
+                        holidayHTML = '<div class="no-events"><?php echo esc_js(__('No events', 'lunar-calendar')); ?></div>';
                     }
 
                     document.getElementById('holiday-info').innerHTML = holidayHTML;
@@ -1490,7 +1534,8 @@ class LunarCanlendarBlock extends Block
 
                 updateCalendar() {
                     // Update month/year display
-                    const monthYear = `Tháng ${this.currentDate.month() + 1} - ${this.currentDate.year()}`;
+                    const monthYearDisplayFormat = <?php echo json_encode(__('Month %d - %d', 'lunar-calendar')); ?>;
+                    const monthYear = monthYearDisplayFormat.replace('%d', this.currentDate.month() + 1).replace('%d', this.currentDate.year());
                     document.getElementById('current-month-year').textContent = monthYear;
 
                     // Update selectors
