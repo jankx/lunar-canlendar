@@ -4,7 +4,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 // Build multiple blocks
-const blocks = ['lunar-calendar', 'event-details'];
+const blocks = ['lunar-calendar'];
 
 // Generate entry points for all blocks
 const entries = {};

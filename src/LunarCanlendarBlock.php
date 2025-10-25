@@ -452,8 +452,12 @@ class LunarCanlendarBlock extends Block
         $gregorian_icon_html = $this->sanitize_icon_html(isset($attributes['gregorianIconHtml']) ? $attributes['gregorianIconHtml'] : '');
         $lunar_icon_html = $this->sanitize_icon_html(isset($attributes['lunarIconHtml']) ? $attributes['lunarIconHtml'] : '');
 
-        // Only output the script if not an AJAX request
-        if (!(defined('DOING_AJAX') && DOING_AJAX)) {
+        // Only output the script if not an AJAX request or REST API request
+        $is_rest_request = defined('REST_REQUEST') && REST_REQUEST;
+        $is_ajax_request = defined('DOING_AJAX') && DOING_AJAX;
+        $should_output_script = !$is_rest_request && !$is_ajax_request && !is_admin();
+        
+        if ($should_output_script) {
             echo '<script>window.lunarCalendarApiUrl = ' . json_encode($api_url) . ';</script>';
         }
         ob_start();
