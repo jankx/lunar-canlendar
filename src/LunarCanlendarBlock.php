@@ -465,9 +465,6 @@ class LunarCanlendarBlock extends Block
         $is_ajax_request = defined('DOING_AJAX') && DOING_AJAX;
         $should_output_script = !$is_rest_request && !$is_ajax_request && !is_admin();
         
-        if ($should_output_script) {
-            echo '<script>window.lunarCalendarApiUrl = ' . json_encode($api_url) . ';</script>';
-        }
         ob_start();
         ?>
         <div class="lunar-calendar-container">
@@ -581,6 +578,11 @@ class LunarCanlendarBlock extends Block
         </div>
 
         <script>
+            // Set API URL
+            <?php if ($should_output_script): ?>
+            window.lunarCalendarApiUrl = <?php echo json_encode($api_url); ?>;
+            <?php endif; ?>
+            
             // Day names
             const dayNames = <?php echo json_encode([
                 __('Sunday', 'lunar-calendar'),
