@@ -1,4 +1,4 @@
-// Version: 2025-10-25 - iOS optimized
+// Version: 2025-10-25 15:23 - iOS optimized
 import { registerBlockType } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';

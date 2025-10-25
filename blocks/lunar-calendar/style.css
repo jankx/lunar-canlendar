@@ -44,6 +44,7 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 10px;
+    position: absolute;
 }
 
 .calendar-controls {
@@ -52,6 +53,18 @@
     width: 100%;
     justify-content: space-between;
 }
+
+.calendar-controls .lunar-date-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 9999;
+}
+
+.calendar-controls #next-day-btn {
+    right: 0;
+}
+
 
 @media (min-width: 768px) {
     .calendar-controls {
@@ -76,6 +89,13 @@
     font-size: 0.875rem;
     margin-bottom: 8px;
     font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lunar-date-label svg {
+    margin-right: 5px;
 }
 
 .lunar-date-number {
@@ -250,7 +270,7 @@
     }
 }
 
-.lunar-calendar-day.other-month {
+.lunar-calendar-day.other-month .lunar-day-number, .lunar-calendar-day.other-month .lunar-lunar-day, .lunar-calendar-day.other-month .lunar-day-event {
     opacity: 0.3;
 }
 
