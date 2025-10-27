@@ -1,0 +1,19 @@
+# Exclude development files from release
+/node_modules export-ignore
+/.git export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/compile-translations.php export-ignore
+/webpack.config.js export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/I18N.md export-ignore
+
+# Include only necessary language files
+/languages/*.pot export-ignore
+/languages/README.md export-ignore
+
+# Keep only compiled .mo files and .po source files
+# *.po files are kept for translators
+# *.mo files are needed for translations to work
+
