@@ -1056,6 +1056,7 @@ class LunarCanlendarBlock extends Block
                                 await this.fetchAndUpdateAllMonths(month, year);
                             } else {
                                 this.currentDate = selectedDate;
+                                this.updateMonthYearDisplay();
                                 this.generateCalendar();
                                 this.updateCurrentDateDisplay();
                                 this.updateHolidayInfo();
@@ -1107,6 +1108,8 @@ class LunarCanlendarBlock extends Block
                     if (isMonthInCurrentRange(todayMonth, todayYear)) {
                         // Today is in current range, just update selected date
                         this.selectedDate = today.clone();
+                        this.currentDate = today.clone();
+                        this.updateMonthYearDisplay();
                         this.updateCurrentDateDisplay();
                         this.generateCalendar();
                     } else {
@@ -1347,6 +1350,7 @@ class LunarCanlendarBlock extends Block
 
                         // Update calendar display
                         this.currentDate = nextMonth;
+                        this.updateMonthYearDisplay();
                         this.generateCalendar();
                         this.updateCurrentDateDisplay();
                         this.updateHolidayInfo();
@@ -1379,6 +1383,7 @@ class LunarCanlendarBlock extends Block
 
                         // Update calendar display
                         this.currentDate = prevMonth;
+                        this.updateMonthYearDisplay();
                         this.generateCalendar();
                         this.updateCurrentDateDisplay();
                         this.updateHolidayInfo();
@@ -1421,6 +1426,7 @@ class LunarCanlendarBlock extends Block
                         // Update current date and display
                         this.currentDate = moment([year, month - 1]);
                         this.updateSelectors();
+                        this.updateMonthYearDisplay();
                         this.generateCalendar();
                         this.updateCurrentDateDisplay();
                         this.updateHolidayInfo();
@@ -1441,6 +1447,18 @@ class LunarCanlendarBlock extends Block
                     if (monthSelector && yearSelector) {
                         monthSelector.value = this.currentDate.month() + 1;
                         yearSelector.value = this.currentDate.year();
+                    }
+                }
+
+                // Update month/year display text
+                updateMonthYearDisplay() {
+                    const monthYearDisplayFormat = <?php echo json_encode(__('Month %d - %d', 'lunar-calendar')); ?>;
+                    const monthYear = monthYearDisplayFormat
+                        .replace('%d', this.currentDate.month() + 1)
+                        .replace('%d', this.currentDate.year());
+                    const currentMonthYearEl = document.getElementById('current-month-year');
+                    if (currentMonthYearEl) {
+                        currentMonthYearEl.textContent = monthYear;
                     }
                 }
 
