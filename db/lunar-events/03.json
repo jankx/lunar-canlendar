@@ -1,0 +1,35 @@
+{
+  "month": 3,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 3,
+      "title": "Ngày Tết Hàn Thực",
+      "description": "Ngày Tết Hàn Thực - Lễ tảo mộ",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 10,
+      "title": "Giỗ Tổ Hùng Vương",
+      "description": "Ngày Giỗ Tổ Hùng Vương (10/3 âm lịch)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 15,
+      "title": "Rằm tháng 3",
+      "description": "Ngày rằm tháng 3 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

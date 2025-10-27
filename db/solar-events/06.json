@@ -1,0 +1,60 @@
+{
+  "month": 6,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 1,
+      "day_rule": "fixed",
+      "title": "Ngày Quốc tế Thiếu nhi",
+      "description": "Ngày Quốc tế Thiếu nhi 1/6",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 5,
+      "day_rule": "fixed",
+      "title": "Ngày Môi trường Thế giới",
+      "description": "World Environment Day",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 21,
+      "day_rule": "fixed",
+      "title": "Ngày Báo chí Cách mạng Việt Nam",
+      "description": "Ngày Báo chí Cách mạng Việt Nam (21/06/1925)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1925
+    },
+    {
+      "day": 28,
+      "day_rule": "fixed",
+      "title": "Ngày Gia đình Việt Nam",
+      "description": "Ngày Gia đình Việt Nam",
+      "type": 8,
+      "type_name": "cultural",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day_rule": "third_sunday",
+      "weekday": 0,
+      "week_number": 3,
+      "title": "Ngày của Cha",
+      "description": "Father's Day - Chủ nhật thứ 3 của tháng 6",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

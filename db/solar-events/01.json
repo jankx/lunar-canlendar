@@ -1,0 +1,18 @@
+{
+  "month": 1,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 1,
+      "day_rule": "fixed",
+      "title": "Tết Dương lịch",
+      "description": "Năm mới Dương lịch",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

@@ -1,0 +1,26 @@
+{
+  "month": 7,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 15,
+      "title": "Tết Trung Nguyên",
+      "description": "Vu Lan - Ngày xá tội vong nhân",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 30,
+      "title": "Cuối tháng 7",
+      "description": "Kết thúc tháng Cô Hồn",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

@@ -1,0 +1,79 @@
+{
+  "month": 12,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 1,
+      "day_rule": "fixed",
+      "title": "Ngày Thế giới phòng chống AIDS",
+      "description": "World AIDS Day",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 10,
+      "day_rule": "fixed",
+      "title": "Ngày Quyền con người",
+      "description": "Ngày Quốc tế Nhân quyền",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 19,
+      "day_rule": "fixed",
+      "title": "Ngày thành lập Quân đội Nhân dân Việt Nam",
+      "description": "Ngày thành lập QĐND Việt Nam (19/12/1944)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1944
+    },
+    {
+      "day": 22,
+      "day_rule": "fixed",
+      "title": "Ngày thành lập Quân đội Nhân dân Việt Nam",
+      "description": "Ngày hội Quốc phòng toàn dân",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 24,
+      "day_rule": "fixed",
+      "title": "Đêm Giáng sinh (Christmas Eve)",
+      "description": "Đêm Giáng sinh",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 25,
+      "day_rule": "fixed",
+      "title": "Lễ Giáng sinh (Christmas)",
+      "description": "Lễ Giáng sinh - Chúa Giê-xu ra đời",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 31,
+      "day_rule": "fixed",
+      "title": "Đêm Giao thừa (New Year's Eve)",
+      "description": "Đêm Giao thừa Dương lịch",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

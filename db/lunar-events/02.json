@@ -1,0 +1,26 @@
+{
+  "month": 2,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 3,
+      "title": "Tết Hàn Thực",
+      "description": "Ngày tưởng niệm tổ tiên, ăn đồ nguội",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 15,
+      "title": "Rằm tháng 2",
+      "description": "Ngày rằm tháng 2 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

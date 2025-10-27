@@ -1,0 +1,51 @@
+{
+  "month": 5,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 1,
+      "day_rule": "fixed",
+      "title": "Ngày Quốc tế Lao động",
+      "description": "Ngày Quốc tế Lao động",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 7,
+      "day_rule": "fixed",
+      "title": "Chiến thắng Điện Biên Phủ",
+      "description": "Ngày chiến thắng Điện Biên Phủ (07/05/1954)",
+      "type": 2,
+      "type_name": "historical",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1954
+    },
+    {
+      "day": 19,
+      "day_rule": "fixed",
+      "title": "Ngày sinh Chủ tịch Hồ Chí Minh",
+      "description": "Ngày sinh Chủ tịch Hồ Chí Minh (19/05/1890)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1890
+    },
+    {
+      "day_rule": "second_sunday",
+      "weekday": 0,
+      "week_number": 2,
+      "title": "Ngày của Mẹ",
+      "description": "Mother's Day - Chủ nhật thứ 2 của tháng 5",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

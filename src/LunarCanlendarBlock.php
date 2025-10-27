@@ -3,27 +3,19 @@ namespace Jankx\LunarCanlendar;
 
 use Jankx\Gutenberg\Block;
 
-
 class LunarCanlendarBlock extends Block
 {
     /**
      * AJAX handler for calendar events
-     * Tích hợp với Events Manager plugin
+     * Uses EventsManager to merge events from multiple sources
      */
     public static function ajax_calendar_events()
     {
         $month = isset($_GET['month']) ? intval($_GET['month']) : date('n');
         $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
-        $events = [];
-
-        // Tính toán ngày đầu và cuối tháng
-        $start_date = sprintf('%04d-%02d-01', $year, $month);
-        $last_day = date('t', strtotime($start_date));
-        $end_date = sprintf('%04d-%02d-%02d', $year, $month, $last_day);
-
-        // Lấy events trực tiếp từ database em_events
-        $events = self::get_events_from_database($month, $year);
+        // Get merged events from EventsManager
+        $events = EventsManager::getEvents($month, $year);
 
         wp_send_json([
             'success' => true,

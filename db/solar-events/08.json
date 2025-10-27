@@ -1,0 +1,19 @@
+{
+  "month": 8,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 19,
+      "day_rule": "fixed",
+      "title": "Cách mạng Tháng Tám",
+      "description": "Ngày Cách mạng Tháng Tám thành công (19/08/1945)",
+      "type": 2,
+      "type_name": "historical",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1945
+    }
+  ]
+}
+

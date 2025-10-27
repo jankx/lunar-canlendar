@@ -1,0 +1,26 @@
+{
+  "month": 4,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 8,
+      "title": "Lễ Phật Đản",
+      "description": "Ngày Phật Thích Ca Mâu Ni ra đời",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 15,
+      "title": "Rằm tháng 4",
+      "description": "Ngày rằm tháng 4 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

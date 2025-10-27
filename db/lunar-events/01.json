@@ -1,0 +1,53 @@
+{
+  "month": 1,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 1,
+      "title": "Tết Nguyên Đán",
+      "description": "Tết Nguyên Đán - Ngày đầu tiên của năm mới âm lịch",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 2,
+      "title": "Mùng 2 Tết",
+      "description": "Ngày thứ hai của Tết Nguyên Đán",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 3,
+      "title": "Mùng 3 Tết",
+      "description": "Ngày thứ ba của Tết Nguyên Đán",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 10,
+      "title": "Rằm tháng Giêng",
+      "description": "Ngày rằm đầu năm",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 15,
+      "title": "Tết Nguyên Tiêu",
+      "description": "Tết Thượng Nguyên - Rằm tháng Giêng",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

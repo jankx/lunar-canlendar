@@ -1,0 +1,59 @@
+{
+  "month": 10,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 10,
+      "day_rule": "fixed",
+      "title": "Ngày Giải phóng Thủ đô",
+      "description": "Ngày giải phóng Thủ đô Hà Nội (10/10/1954)",
+      "type": 2,
+      "type_name": "historical",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1954
+    },
+    {
+      "day": 13,
+      "day_rule": "fixed",
+      "title": "Ngày Doanh nhân Việt Nam",
+      "description": "Ngày Doanh nhân Việt Nam",
+      "type": 4,
+      "type_name": "professional",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 14,
+      "day_rule": "fixed",
+      "title": "Ngày Phụ nữ Việt Nam",
+      "description": "Ngày Phụ nữ Việt Nam 20/10",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 20,
+      "day_rule": "fixed",
+      "title": "Ngày Phụ nữ Việt Nam",
+      "description": "Ngày thành lập Hội Liên hiệp Phụ nữ Việt Nam",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 31,
+      "day_rule": "fixed",
+      "title": "Halloween",
+      "description": "Lễ hội Halloween",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

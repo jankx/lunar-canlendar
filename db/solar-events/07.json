@@ -1,0 +1,28 @@
+{
+  "month": 7,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 11,
+      "day_rule": "fixed",
+      "title": "Ngày Dân số Thế giới",
+      "description": "World Population Day",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 27,
+      "day_rule": "fixed",
+      "title": "Ngày Thương binh - Liệt sĩ",
+      "description": "Ngày Thương binh và Liệt sĩ Việt Nam",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

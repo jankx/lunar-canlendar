@@ -1,0 +1,50 @@
+{
+  "month": 11,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 9,
+      "day_rule": "fixed",
+      "title": "Ngày Pháp luật Việt Nam",
+      "description": "Ngày Pháp luật nước Cộng hòa xã hội chủ nghĩa Việt Nam",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 20,
+      "day_rule": "fixed",
+      "title": "Ngày Nhà giáo Việt Nam",
+      "description": "Ngày Nhà giáo Việt Nam 20/11",
+      "type": 4,
+      "type_name": "professional",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 23,
+      "day_rule": "fixed",
+      "title": "Ngày thành lập Hội Chữ thập đỏ Việt Nam",
+      "description": "Ngày thành lập Hội Chữ thập đỏ VN (23/11/1946)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1946
+    },
+    {
+      "day_rule": "fourth_thursday",
+      "weekday": 4,
+      "week_number": 4,
+      "title": "Lễ Tạ ơn (Thanksgiving)",
+      "description": "Thanksgiving Day - Thứ 5 thứ 4 của tháng 11",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

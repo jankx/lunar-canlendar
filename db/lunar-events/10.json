@@ -1,0 +1,17 @@
+{
+  "month": 10,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 15,
+      "title": "Rằm tháng 10",
+      "description": "Ngày rằm tháng 10 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

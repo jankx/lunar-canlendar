@@ -1,0 +1,39 @@
+{
+  "month": 4,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 1,
+      "day_rule": "fixed",
+      "title": "Cá tháng Tư (April Fools)",
+      "description": "Ngày Cá tháng Tư",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 21,
+      "day_rule": "fixed",
+      "title": "Ngày Sách Việt Nam",
+      "description": "Ngày sách và văn hóa đọc Việt Nam",
+      "type": 8,
+      "type_name": "cultural",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 30,
+      "day_rule": "fixed",
+      "title": "Ngày Giải phóng miền Nam",
+      "description": "Ngày thống nhất đất nước (30/04/1975)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly",
+      "year": 1975
+    }
+  ]
+}
+

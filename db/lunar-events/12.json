@@ -1,0 +1,35 @@
+{
+  "month": 12,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 15,
+      "title": "Rằm tháng Chạp",
+      "description": "Ngày rằm tháng 12 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 23,
+      "title": "Lễ ông Táo",
+      "description": "Ngày ông Công ông Táo về trời",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 30,
+      "title": "Giao thừa",
+      "description": "Đêm giao thừa - Đón năm mới",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

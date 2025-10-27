@@ -1,0 +1,17 @@
+{
+  "month": 8,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 15,
+      "title": "Tết Trung Thu",
+      "description": "Tết Trung Thu - Rằm tháng 8",
+      "type": 8,
+      "type_name": "cultural",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

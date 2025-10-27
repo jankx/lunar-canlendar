@@ -1,0 +1,39 @@
+{
+  "month": 3,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 8,
+      "day_rule": "fixed",
+      "title": "Ngày Quốc tế Phụ nữ",
+      "description": "Ngày quốc tế phụ nữ 8/3",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 20,
+      "day_rule": "fixed",
+      "title": "Ngày Quốc tế Hạnh phúc",
+      "description": "International Day of Happiness",
+      "type": 3,
+      "type_name": "international",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 26,
+      "day_rule": "fixed",
+      "title": "Ngày thành lập Đoàn TNCS Hồ Chí Minh",
+      "description": "Ngày thành lập Đoàn (26/03/1931)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1931
+    }
+  ]
+}
+

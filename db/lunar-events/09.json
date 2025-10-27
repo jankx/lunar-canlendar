@@ -1,0 +1,26 @@
+{
+  "month": 9,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 9,
+      "title": "Tết Trùng Cửu",
+      "description": "Tết Trùng Cửu (9/9 âm lịch)",
+      "type": 8,
+      "type_name": "cultural",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 15,
+      "title": "Rằm tháng 9",
+      "description": "Ngày rằm tháng 9 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

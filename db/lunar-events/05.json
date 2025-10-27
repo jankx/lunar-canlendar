@@ -1,0 +1,26 @@
+{
+  "month": 5,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 5,
+      "title": "Tết Đoan Ngọ",
+      "description": "Tết Đoan Ngọ - Tết diệt sâu bọ",
+      "type": 8,
+      "type_name": "cultural",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    },
+    {
+      "day": 15,
+      "title": "Rằm tháng 5",
+      "description": "Ngày rằm tháng 5 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

@@ -1,0 +1,40 @@
+{
+  "month": 9,
+  "calendar_type": "solar",
+  "weight": 0.4,
+  "events": [
+    {
+      "day": 2,
+      "day_rule": "fixed",
+      "title": "Quốc khánh Việt Nam",
+      "description": "Ngày Quốc khánh nước Cộng hòa xã hội chủ nghĩa Việt Nam (02/09/1945)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": true,
+      "recurrence": "yearly",
+      "year": 1945
+    },
+    {
+      "day": 7,
+      "day_rule": "fixed",
+      "title": "Ngày thành lập Đài Truyền hình Việt Nam",
+      "description": "Ngày thành lập Đài THVN (07/09/1970)",
+      "type": 1,
+      "type_name": "national",
+      "is_holiday": false,
+      "recurrence": "yearly",
+      "year": 1970
+    },
+    {
+      "day": 10,
+      "day_rule": "fixed",
+      "title": "Ngày Giáo viên Việt Nam",
+      "description": "Ngày Nhà giáo Việt Nam",
+      "type": 4,
+      "type_name": "professional",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+

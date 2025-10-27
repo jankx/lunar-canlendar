@@ -1,0 +1,17 @@
+{
+  "month": 6,
+  "calendar_type": "lunar",
+  "weight": 0.8,
+  "events": [
+    {
+      "day": 15,
+      "title": "Rằm tháng 6",
+      "description": "Ngày rằm tháng 6 âm lịch",
+      "type": 9,
+      "type_name": "religious",
+      "is_holiday": false,
+      "recurrence": "yearly"
+    }
+  ]
+}
+
