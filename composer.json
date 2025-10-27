@@ -14,5 +14,7 @@
             "email": "puleeno@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "jetfueltw/solarlunar-php": "^1.0"
+    }
 }

@@ -460,6 +460,9 @@ class LunarCanlendarBlock extends Block
         $gregorian_icon_html = $this->sanitize_icon_html(isset($attributes['gregorianIconHtml']) ? $attributes['gregorianIconHtml'] : '');
         $lunar_icon_html = $this->sanitize_icon_html(isset($attributes['lunarIconHtml']) ? $attributes['lunarIconHtml'] : '');
 
+        // Calculate today's lunar date with cache
+        $today_lunar = LunarDateHelper::getTodayLunarDate();
+
         // Only output the script if not an AJAX request or REST API request
         $is_rest_request = defined('REST_REQUEST') && REST_REQUEST;
         $is_ajax_request = defined('DOING_AJAX') && DOING_AJAX;
@@ -489,9 +492,9 @@ class LunarCanlendarBlock extends Block
                             <?php endif; ?>
                             <?php esc_html_e('Gregorian Calendar', 'lunar-calendar'); ?>
                         </div>
-                        <div class="lunar-date-number" id="current-gregorian-day">08</div>
-                        <div class="lunar-date-month-year" id="current-gregorian-month-year"><?php echo esc_html__('Month 08 Year 2025', 'lunar-calendar'); ?></div>
-                        <div class="lunar-date-day" id="current-gregorian-day-name"><?php echo esc_html__('Friday', 'lunar-calendar'); ?></div>
+                        <div class="lunar-date-number" id="current-gregorian-day"><?php echo date('d'); ?></div>
+                        <div class="lunar-date-month-year" id="current-gregorian-month-year"><?php echo sprintf(__('Month %s Year %d', 'lunar-calendar'), date('m'), date('Y')); ?></div>
+                        <div class="lunar-date-day" id="current-gregorian-day-name"><?php echo date_i18n('l'); ?></div>
                     </div>
                     <div class="lunar-date-column lunar-date-column-lunar">
                         <div class="lunar-date-label">
@@ -502,9 +505,9 @@ class LunarCanlendarBlock extends Block
                             <?php endif; ?>
                             <?php esc_html_e('Lunar Calendar', 'lunar-calendar'); ?>
                         </div>
-                        <div class="lunar-date-number" id="current-lunar-day">15</div>
-                        <div class="lunar-date-month-year" id="current-lunar-month-year"><?php echo esc_html__('Month 06 Year At Ti', 'lunar-calendar'); ?></div>
-                        <div class="lunar-info" id="current-lunar-details"><?php echo esc_html__('Day Ky Dau - Month Quy Mui', 'lunar-calendar'); ?></div>
+                        <div class="lunar-date-number" id="current-lunar-day"><?php echo esc_html($today_lunar['day']); ?></div>
+                        <div class="lunar-date-month-year" id="current-lunar-month-year"><?php echo esc_html(sprintf(__('Month %s Year %s', 'lunar-calendar'), $today_lunar['month'], $today_lunar['yearName'])); ?></div>
+                        <div class="lunar-info" id="current-lunar-details"><?php echo esc_html(sprintf(__('Day %s - Month %s', 'lunar-calendar'), $today_lunar['dayName'], $today_lunar['monthName'])); ?></div>
                     </div>
                 </div>
 
@@ -523,36 +526,42 @@ class LunarCanlendarBlock extends Block
 
             <!-- Navigation Bar -->
             <div class="lunar-calendar-nav">
-                <div class="current-month-navigation">
+                    <div class="current-month-navigation">
                     <button class="lunar-nav-arrow" id="prev-month">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <div class="lunar-current-month-year" id="current-month-year"><?php echo esc_html(sprintf(__('Month %d - %d', 'lunar-calendar'), 8, 2025)); ?></div>
+                    <div class="lunar-current-month-year" id="current-month-year"><?php echo esc_html(sprintf(__('Month %d - %d', 'lunar-calendar'), date('n'), date('Y'))); ?></div>
                     <button class="lunar-nav-arrow" id="next-month">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
                 <div class="lunar-month-year-selectors">
                     <select id="month-selector">
-                        <option value="1"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 1)); ?></option>
-                        <option value="2"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 2)); ?></option>
-                        <option value="3"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 3)); ?></option>
-                        <option value="4"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 4)); ?></option>
-                        <option value="5"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 5)); ?></option>
-                        <option value="6"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 6)); ?></option>
-                        <option value="7"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 7)); ?></option>
-                        <option value="8" selected><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 8)); ?></option>
-                        <option value="9"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 9)); ?></option>
-                        <option value="10"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 10)); ?></option>
-                        <option value="11"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 11)); ?></option>
-                        <option value="12"><?php echo esc_html(sprintf(__('Month %d', 'lunar-calendar'), 12)); ?></option>
+                        <?php
+                        $current_month = date('n');
+                        for ($m = 1; $m <= 12; $m++) {
+                            printf(
+                                '<option value="%d"%s>%s</option>',
+                                $m,
+                                selected($current_month, $m, false),
+                                esc_html(sprintf(__('Month %d', 'lunar-calendar'), $m))
+                            );
+                        }
+                        ?>
                     </select>
                     <select id="year-selector">
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025" selected>2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
+                        <?php
+                        $current_year = date('Y');
+                        $year_range = 5; // Show 5 years before and after current year
+                        for ($y = $current_year - $year_range; $y <= $current_year + $year_range; $y++) {
+                            printf(
+                                '<option value="%d"%s>%d</option>',
+                                $y,
+                                selected($current_year, $y, false),
+                                $y
+                            );
+                        }
+                        ?>
                     </select>
                     <button class="lunar-view-btn" id="view-btn"><?php esc_html_e('View', 'lunar-calendar'); ?></button>
                     <?php if ($show_today_button): ?>
