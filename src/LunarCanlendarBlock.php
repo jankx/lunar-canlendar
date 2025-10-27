@@ -490,8 +490,8 @@ class LunarCanlendarBlock extends Block
                             <?php esc_html_e('Gregorian Calendar', 'lunar-calendar'); ?>
                         </div>
                         <div class="lunar-date-number" id="current-gregorian-day">08</div>
-                        <div class="lunar-date-month-year" id="current-gregorian-month-year">Tháng 08 năm 2025</div>
-                        <div class="lunar-date-day" id="current-gregorian-day-name">Thứ 6</div>
+                        <div class="lunar-date-month-year" id="current-gregorian-month-year"><?php echo esc_html__('Month 08 Year 2025', 'lunar-calendar'); ?></div>
+                        <div class="lunar-date-day" id="current-gregorian-day-name"><?php echo esc_html__('Friday', 'lunar-calendar'); ?></div>
                     </div>
                     <div class="lunar-date-column lunar-date-column-lunar">
                         <div class="lunar-date-label">
@@ -503,8 +503,8 @@ class LunarCanlendarBlock extends Block
                             <?php esc_html_e('Lunar Calendar', 'lunar-calendar'); ?>
                         </div>
                         <div class="lunar-date-number" id="current-lunar-day">15</div>
-                        <div class="lunar-date-month-year" id="current-lunar-month-year">Tháng 06 năm Ất Tỵ</div>
-                        <div class="lunar-info" id="current-lunar-details">Ngày Kỷ Dậu - Tháng Quý Mùi</div>
+                        <div class="lunar-date-month-year" id="current-lunar-month-year"><?php echo esc_html__('Month 06 Year At Ti', 'lunar-calendar'); ?></div>
+                        <div class="lunar-info" id="current-lunar-details"><?php echo esc_html__('Day Ky Dau - Month Quy Mui', 'lunar-calendar'); ?></div>
                     </div>
                 </div>
 
@@ -899,29 +899,46 @@ class LunarCanlendarBlock extends Block
                 sprintf(__('Month %d', 'lunar-calendar'), 12),
             ]); ?>;
 
-            // Vietnamese zodiac years
-            const zodiacYears = [
-                'Giáp Tý', 'Ất Sửu', 'Bính Dần', 'Đinh Mão', 'Mậu Thìn', 'Kỷ Tỵ',
-                'Canh Ngọ', 'Tân Mùi', 'Nhâm Thân', 'Quý Dậu', 'Giáp Tuất', 'Ất Hợi'
-            ];
+            // Vietnamese zodiac years (localized)
+            const zodiacYears = <?php echo json_encode([
+                __('Giap Ty', 'lunar-calendar'), __('At Suu', 'lunar-calendar'), __('Binh Dan', 'lunar-calendar'), 
+                __('Dinh Mao', 'lunar-calendar'), __('Mau Thin', 'lunar-calendar'), __('Ky Ti', 'lunar-calendar'),
+                __('Canh Ngo', 'lunar-calendar'), __('Tan Mui', 'lunar-calendar'), __('Nham Than', 'lunar-calendar'), 
+                __('Quy Dau', 'lunar-calendar'), __('Giap Tuat', 'lunar-calendar'), __('At Hoi', 'lunar-calendar')
+            ]); ?>;
 
-            // Vietnamese zodiac months
-            const zodiacMonths = [
-                'Giáp Tý', 'Ất Sửu', 'Bính Dần', 'Đinh Mão', 'Mậu Thìn', 'Kỷ Tỵ',
-                'Canh Ngọ', 'Tân Mùi', 'Nhâm Thân', 'Quý Dậu', 'Giáp Tuất', 'Ất Hợi'
-            ];
+            // Vietnamese zodiac months (localized)
+            const zodiacMonths = <?php echo json_encode([
+                __('Giap Ty', 'lunar-calendar'), __('At Suu', 'lunar-calendar'), __('Binh Dan', 'lunar-calendar'), 
+                __('Dinh Mao', 'lunar-calendar'), __('Mau Thin', 'lunar-calendar'), __('Ky Ti', 'lunar-calendar'),
+                __('Canh Ngo', 'lunar-calendar'), __('Tan Mui', 'lunar-calendar'), __('Nham Than', 'lunar-calendar'), 
+                __('Quy Dau', 'lunar-calendar'), __('Giap Tuat', 'lunar-calendar'), __('At Hoi', 'lunar-calendar')
+            ]); ?>;
 
-            // Vietnamese zodiac days
-            const zodiacDays = [
-                'Giáp Tý', 'Ất Sửu', 'Bính Dần', 'Đinh Mão', 'Mậu Thìn', 'Kỷ Tỵ',
-                'Canh Ngọ', 'Tân Mùi', 'Nhâm Thân', 'Quý Dậu', 'Giáp Tuất', 'Ất Hợi'
-            ];
+            // Vietnamese zodiac days (localized)
+            const zodiacDays = <?php echo json_encode([
+                __('Giap Ty', 'lunar-calendar'), __('At Suu', 'lunar-calendar'), __('Binh Dan', 'lunar-calendar'), 
+                __('Dinh Mao', 'lunar-calendar'), __('Mau Thin', 'lunar-calendar'), __('Ky Ti', 'lunar-calendar'),
+                __('Canh Ngo', 'lunar-calendar'), __('Tan Mui', 'lunar-calendar'), __('Nham Than', 'lunar-calendar'), 
+                __('Quy Dau', 'lunar-calendar'), __('Giap Tuat', 'lunar-calendar'), __('At Hoi', 'lunar-calendar')
+            ]); ?>;
 
-            // Vietnamese heavenly stems
-            const heavenlyStems = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'];
+            // Vietnamese heavenly stems (localized)
+            const heavenlyStems = <?php echo json_encode([
+                __('Giap', 'lunar-calendar'), __('At', 'lunar-calendar'), __('Binh', 'lunar-calendar'), 
+                __('Dinh', 'lunar-calendar'), __('Mau', 'lunar-calendar'), __('Ky', 'lunar-calendar'), 
+                __('Canh', 'lunar-calendar'), __('Tan', 'lunar-calendar'), __('Nham', 'lunar-calendar'), 
+                __('Quy', 'lunar-calendar')
+            ]); ?>;
 
-            // Vietnamese earthly branches
-            const earthlyBranches = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+            // Vietnamese earthly branches (localized)
+            const earthlyBranches = <?php echo json_encode([
+                __('Ty', 'lunar-calendar'), __('Suu', 'lunar-calendar'), __('Dan', 'lunar-calendar'), 
+                __('Mao', 'lunar-calendar'), __('Thin', 'lunar-calendar'), __('Ti', 'lunar-calendar'), 
+                __('Ngo', 'lunar-calendar'), __('Mui', 'lunar-calendar'), __('Than', 'lunar-calendar'), 
+                __('Dau', 'lunar-calendar'), __('Tuat', 'lunar-calendar'), __('Hoi', 'lunar-calendar')
+            ]); ?>;
+
 
             class LunarCalendar {
                 constructor() {
